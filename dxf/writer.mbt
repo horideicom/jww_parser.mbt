@@ -7,7 +7,14 @@ pub fn to_string(doc~ : DxfDocument) -> String {
   let mut output = ""
 
   // ヘッダーセクション
-  output = output + "0\nSECTION\n2\nHEADER\n0\nENDSEC\n"
+  output = output + "0\nSECTION\n2\nHEADER\n"
+  output = output + "9\n$ACADVER\n1\nAC1015\n"
+  output = output + "9\n$INSBASE\n10\n0.0\n20\n0.0\n30\n0.0\n"
+  output = output + "9\n$EXTMIN\n10\n0.0\n20\n0.0\n30\n0.0\n"
+  output = output + "9\n$EXTMAX\n10\n1000.0\n20\n1000.0\n30\n0.0\n"
+  output = output + "9\n$LIMMIN\n10\n0.0\n20\n0.0\n"
+  output = output + "9\n$LIMMAX\n10\n1000.0\n20\n1000.0\n"
+  output = output + "0\nENDSEC\n"
 
   // テーブルセクション
   output = output + "0\nSECTION\n2\nTABLES\n"
@@ -17,6 +24,9 @@ pub fn to_string(doc~ : DxfDocument) -> String {
 
   // LAYERテーブル
   output = output + layer_table(doc=doc)
+
+  // STYLEテーブル
+  output = output + style_table()
 
   output = output + "0\nENDSEC\n"
 
@@ -43,9 +53,65 @@ pub fn to_string(doc~ : DxfDocument) -> String {
 }
 
 ///|
-/// LTYPEテーブルを生成
+/// LTYPEテーブルを生成（11種類の線種）
 fn ltype_table() -> String {
-  "0\nTABLE\n2\nLTYPE\n70\n1\n0\nLTYPE\n2\nCONTINUOUS\n70\n0\n3\nSolid line\n72\n65\n73\n0\n40\n0.0\n0\nENDTAB\n"
+  let mut output = ""
+  output = output + "0\nTABLE\n"
+  output = output + "2\nLTYPE\n"
+  output = output + "70\n11\n"
+
+  // 線種定義（JWW対応）
+  let ltypes = [
+    ("CONTINUOUS", "Solid line", ""),
+    ("DASHED", "Dashed", ""),
+    ("DOTTED", "Dotted", ""),
+    ("DASHDOT", "Dash dot", ""),
+    ("DOT2", "Dot (small)", ""),
+    ("DASHDOT2", "Dash dot (small)", ""),
+    ("DASHDOTDOT", "Dash dot dot", ""),
+    ("DIVIDE", "Divide", ""),
+    ("CENTER", "Center", ""),
+    ("BORDER", "Border", ""),
+    ("HIDDEN", "Hidden", "")
+  ]
+
+  for lt in ltypes {
+    let (name, desc, _) = lt
+    output = output + "0\nLTYPE\n"
+    output = output + "2\n" + name + "\n"
+    output = output + "70\n0\n"
+    output = output + "3\n" + desc + "\n"
+    output = output + "72\n65\n"
+    output = output + "73\n0\n"
+    output = output + "40\n0.0\n"
+  }
+
+  output = output + "0\nENDTAB\n"
+  output
+}
+
+///|
+/// STYLEテーブルを生成
+fn style_table() -> String {
+  let mut output = ""
+  output = output + "0\nTABLE\n"
+  output = output + "2\nSTYLE\n"
+  output = output + "70\n1\n"
+
+  // 標準スタイル
+  output = output + "0\nSTYLE\n"
+  output = output + "2\nSTANDARD\n"
+  output = output + "70\n0\n"
+  output = output + "40\n0.0\n"
+  output = output + "41\n1.0\n"
+  output = output + "50\n0.0\n"
+  output = output + "71\n0\n"
+  output = output + "42\n0.2\n"
+  output = output + "3\ntxt\n"
+  output = output + "4\n\n"
+
+  output = output + "0\nENDTAB\n"
+  output
 }
 
 ///|
