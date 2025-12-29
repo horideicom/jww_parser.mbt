@@ -1,0 +1,23 @@
+# Source files
+*.mbt
+moon.mod.json
+moon.pkg.json
+.mooncakes/
+target/
+node_modules/
+
+# Development files
+rolldown.config.mjs
+vite.config.ts
+tsconfig.json
+pnpm-workspace.yaml
+pnpm-lock.yaml
+.githooks/
+.github/
+.claude/
+
+# Test files
+*_test.mbt
+
+# Examples (not included in npm package)
+examples/

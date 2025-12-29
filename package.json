@@ -1,0 +1,50 @@
+{
+  "name": "jww-parser-mbt",
+  "version": "2025.12.0",
+  "description": "JWW file parser and DXF converter powered by MoonBit",
+  "author": "f12o",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/f4ah6o/jww_parser.mbt.git"
+  },
+  "keywords": [
+    "jww",
+    "dxf",
+    "cad",
+    "parser",
+    "converter",
+    "moonbit",
+    "webassembly"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "clean": "rm -rf target dist",
+    "build:moon": "moon build --target js",
+    "build:bundle": "rolldown -c rolldown.config.mjs",
+    "build:types": "mkdir -p dist && cp target/js/release/build/jww_parser.d.ts dist/index.d.ts",
+    "build": "pnpm run clean && pnpm run build:moon && pnpm run build:bundle && pnpm run build:types",
+    "prepublishOnly": "pnpm run build",
+    "set-version": "node scripts/sync-version.js && git add package.json moon.mod.json examples/package.json",
+    "release": "node scripts/release.js"
+  },
+  "packageManager": "pnpm@10.26.2",
+  "devDependencies": {
+    "rolldown": "^1.0.0-beta.57",
+    "typescript": "^5.9.3"
+  }
+}

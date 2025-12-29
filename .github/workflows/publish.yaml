@@ -1,0 +1,129 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to npm Registry
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
+
+      - name: Setup MoonBit
+        run: |
+          echo "Installing MoonBit CLI..."
+          curl -fsSL https://cli.moonbitlang.com/install.sh | bash
+          echo "$HOME/.moon/bin" >> $GITHUB_PATH
+
+      - name: Log environment info
+        run: |
+          echo "=== Environment ==="
+          echo "Node version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          echo "pnpm version: $(pnpm --version)"
+          echo "MoonBit version: $(moon --version)"
+          echo "Release tag: ${{ github.event.release.tag_name }}"
+          echo "=== End Environment ==="
+
+      - name: Verify version match
+        run: |
+          RELEASE_VERSION="${{ github.event.release.tag_name }}"
+          # Remove 'v' prefix if present
+          VERSION="${RELEASE_VERSION#v}"
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          MOONBIT_VERSION=$(node -p "require('./moon.mod.json').version")
+
+          echo "Release version:     $VERSION"
+          echo "package.json:        $PACKAGE_VERSION"
+          echo "moon.mod.json:       $MOONBIT_VERSION"
+
+          MISMATCH=false
+
+          if [ "$VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "❌ Version mismatch between release tag and package.json"
+            MISMATCH=true
+          fi
+
+          if [ "$VERSION" != "$MOONBIT_VERSION" ]; then
+            echo "⚠️  Version mismatch between release tag and moon.mod.json"
+            echo "   (This is optional but recommended for consistency)"
+          fi
+
+          if [ "$MISMATCH" = true ]; then
+            exit 1
+          fi
+
+          echo "✅ Version verified: $VERSION"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build package
+        run: |
+          echo "Building jww-parser-mbt@$(node -p "require('./package.json').version")"
+          pnpm run build
+
+      - name: Verify distribution files
+        run: |
+          echo "Checking distribution files..."
+          ls -lh dist/
+          [ -f dist/index.mjs ] || { echo "❌ Missing dist/index.mjs"; exit 1; }
+          [ -f dist/index.cjs ] || { echo "❌ Missing dist/index.cjs"; exit 1; }
+          [ -f dist/index.d.ts ] || { echo "❌ Missing dist/index.d.ts"; exit 1; }
+          echo "✅ All distribution files present"
+
+      - name: Publish to npm with provenance
+        run: |
+          echo "Publishing to npm registry..."
+          npm publish --provenance --access public
+          echo "✅ Successfully published to npm"
+
+      - name: Verify npm package
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "Verifying npm package: jww-parser-mbt@$PACKAGE_VERSION"
+          # Wait a moment for npm to process the new version
+          sleep 3
+          npm view jww-parser-mbt@$PACKAGE_VERSION dist.tarball || {
+            echo "⚠️  Package verification delayed (npm replication)"
+          }
+
+      - name: Release summary
+        if: success()
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "✅ Release successful!"
+          echo ""
+          echo "Package: jww-parser-mbt@$PACKAGE_VERSION"
+          echo "npm URL: https://www.npmjs.com/package/jww-parser-mbt/v/$PACKAGE_VERSION"
+          echo "GitHub Release: ${{ github.event.release.html_url }}"
+
+      - name: Release failed notification
+        if: failure()
+        run: |
+          echo "❌ Release failed!"
+          echo "Please check the logs above for details."
+          exit 1

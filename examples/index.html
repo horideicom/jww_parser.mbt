@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWW → DXF (MoonBit WASM-GC)</title>
+    <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+    <header class="page-header">
+        <div>
+            <p class="eyebrow">JWW to DXF / MoonBit WASM-GC</p>
+            <h1>ブラウザで JWW を読み込み、DXF をプレビュー &amp; ダウンロード</h1>
+            <p class="lede">JWW ファイルをアップロードすると、MoonBit WASM-GC で変換した DXF をプレビュー表示し、内容を確認したままダウンロードできます。</p>
+        </div>
+        <a class="ghost" href="https://github.com/f4ah6o/jww_parser.mbt" target="_blank" rel="noreferrer">GitHub</a>
+    </header>
+
+    <main class="layout">
+        <section class="card">
+            <div class="card-header">
+                <div>
+                    <p class="eyebrow">Step 1</p>
+                    <h2>JWW ファイルをアップロード</h2>
+                </div>
+                <div class="status" id="status">WASM を読み込んでいます…</div>
+            </div>
+            <div class="upload">
+                <label class="file-input">
+                    <input type="file" id="fileInput" accept=".jww">
+                    <span id="fileLabel">ファイルを選択</span>
+                </label>
+                <button id="convertBtn" disabled>DXF に変換</button>
+            </div>
+            <p class="hint">WASM がロードされると変換ボタンが有効になります。</p>
+            <dl class="meta" id="meta">
+                <div>
+                    <dt>レイヤー数</dt>
+                    <dd>—</dd>
+                </div>
+                <div>
+                    <dt>エンティティ数</dt>
+                    <dd>—</dd>
+                </div>
+                <div>
+                    <dt>ブロック数</dt>
+                    <dd>—</dd>
+                </div>
+            </dl>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <div>
+                    <p class="eyebrow">Step 2</p>
+                    <h2>DXF をプレビュー</h2>
+                </div>
+                <span class="badge">3D パン/ズーム対応</span>
+            </div>
+            <div id="viewer" class="viewer">
+                <div class="viewer-message" id="viewerMessage">DXF を読み込むとここに描画されます。右クリックでパン、マウスホイールでズームできます。</div>
+            </div>
+            <p class="hint">プレビューは ESM 版の <code>@f12o/three-dxf</code> と <code>@f12o/dxf-parser</code> を Vite でバンドルして利用しています。</p>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <div>
+                    <p class="eyebrow">Step 3</p>
+                    <h2>DXF 内容を確認・ダウンロード</h2>
+                </div>
+                <a id="downloadLink" class="ghost disabled" aria-disabled="true">DXF をダウンロード</a>
+            </div>
+            <p class="hint">DXF 文字列をそのままコピーすることもできます。</p>
+            <textarea id="dxfOutput" readonly spellcheck="false" placeholder="DXF 出力がここに表示されます"></textarea>
+        </section>
+    </main>
+
+    <footer class="page-footer">
+        <div class="footer-meta">
+            <span>Commit: <code id="commitHash">—</code></span>
+            <span>jww-parser-mbt version: <code id="jwwVersion">—</code></span>
+        </div>
+    </footer>
+
+    <!-- App logic -->
+    <script type="module" src="./src/main.ts"></script>
+</body>
+</html>

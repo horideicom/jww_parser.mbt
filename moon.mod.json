@@ -1,6 +1,6 @@
 {
   "name": "f4ah6o/jww_parser",
-  "version": "0.1.0",
+  "version": "2025.12.0",
   "deps": {
     "moonbitlang/quickcheck": "0.9.8",
     "f4ah6o/encoding_sjis_mbt": { "path": "encoding_sjis_mbt" }
