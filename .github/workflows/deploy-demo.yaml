@@ -36,7 +36,7 @@ jobs:
 
       - name: Update version in demo
         run: |
-          VERSION=$(node -p "require('../package.json').version")
+          VERSION=$(node -p "require('./package.json').version")
           sed -i "s/const PACKAGE_VERSION = \".*\";/const PACKAGE_VERSION = \"$VERSION\";/" examples/src/main.ts
           echo "Updated version to $VERSION"
 
