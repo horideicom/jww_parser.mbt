@@ -1,6 +1,6 @@
 {
   "name": "jww-parser-mbt",
-  "version": "2025.12.1",
+  "version": "2025.12.3",
   "description": "JWW file parser and DXF converter powered by MoonBit",
   "author": "f12o",
   "license": "AGPL-3.0",
