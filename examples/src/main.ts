@@ -13,7 +13,7 @@ type ProgressUpdate = {
 
 // Get commit hash from env or use placeholder
 const BUILD_COMMIT = import.meta.env.VITE_COMMIT_HASH ?? "dev";
-const PACKAGE_VERSION = "2025.12.1";
+const PACKAGE_VERSION = "2025.12.5";
 
 const elements = {
   fileInput: document.getElementById("fileInput") as HTMLInputElement,
@@ -87,14 +87,47 @@ async function convertFile(): Promise<void> {
 
     elements.dxfOutput.value = dxfString;
     updateDownloadLink(dxfString);
-    await renderPreview(dxfString);
 
-    // Update meta info (placeholder for now)
+    // Parse DXF to get counts
+    setStatus("DXF を解析中…");
+    const parser = new DxfParser();
+    const parsed = parser.parseSync(dxfString);
+
+    // Count entities, layers, and blocks
+    let entityCount = 0;
+    let layerCount = 0;
+    let blockCount = 0;
+
+    if (parsed.entities) {
+      entityCount = parsed.entities.length;
+    }
+
+    if (parsed.tables?.layer) {
+      // layer can be an array or an object with layers property
+      const layers = parsed.tables.layer;
+      if (Array.isArray(layers)) {
+        layerCount = layers.length;
+      } else if (layers.layers && Array.isArray(layers.layers)) {
+        layerCount = layers.layers.length;
+      }
+    }
+
+    if (parsed.tables?.block) {
+      const blocks = parsed.tables.block;
+      if (Array.isArray(blocks)) {
+        blockCount = blocks.length;
+      } else if (blocks.blocks && Array.isArray(blocks.blocks)) {
+        blockCount = blocks.blocks.length;
+      }
+    }
+
     updateMeta({
-      layerCount: 0,
-      entityCount: 0,
-      blockCount: 0,
+      layerCount,
+      entityCount,
+      blockCount,
     });
+
+    await renderPreview(dxfString);
 
     setStatus(
       "DXF を生成しました。プレビューとダウンロードが利用できます。",

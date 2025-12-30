@@ -194,7 +194,7 @@ fn find_entity_list_offset(data~ : Bytes, version~ : UInt) -> Option[Int] {
 
           if c0 == 'C'.to_int() && c1 == 'D'.to_int() && c2 == 'a'.to_int() && c3 == 't'.to_int() && c4 == 'a'.to_int() {
             // 最初のエンティティクラス定義が見つかった
-            // カウントWORDは直前（2バイト前）
+            // カウントWORDは2バイト前
             return Some(i - 2)
           }
         }
@@ -233,6 +233,10 @@ fn parse_entity_list(data~ : Bytes, offset~ : Int, version~ : UInt) -> EntityLis
   let mut next_pid : UInt = 1U
 
   for _ in 0..<count {
+    // 残りデータが不足している場合は終了
+    if reader.remaining() < 4 {
+      break
+    }
     let result = parse_entity_with_pid_tracking(reader=reader, version=version, pid_to_class=pid_to_class, next_pid=next_pid)
     match result {
       { entity: Some(ent), pid_to_class: p2c, next_pid: npid } => {
@@ -249,6 +253,17 @@ fn parse_entity_list(data~ : Bytes, offset~ : Int, version~ : UInt) -> EntityLis
 
   let end_pos = reader.position()
   { entities: entities, bytes_consumed: end_pos - start_pos }
+}
+
+///|
+/// エンティティリストをスキャンしてクラス定義を収集する（順方向参照対策）
+fn scan_class_definitions(entity_data~ : Bytes, version~ : UInt) -> Array[String] {
+  // 使用しない - 1パス方式に戻す
+  let pid_to_class = Array::new()
+  for _ in 0..<65536 {
+    pid_to_class.push("")
+  }
+  pid_to_class
 }
 
 ///|
@@ -269,8 +284,12 @@ fn parse_entity_with_pid_tracking(
 ) -> PidTrackingResult {
   let class_id = reader.read_word().to_int()
 
-  let (class_name, updated_p2c, updated_next_pid) = if class_id == 0xFFFF {
-    // 新しいクラス定義
+  let mut class_name = ""
+  let updated_p2c = pid_to_class
+  let mut updated_next_pid = next_pid
+
+  if class_id == 0xFFFF {
+    // 新しいクラス定義 - クラス情報を読み取ってエンティティパースに進む
     let _schema = reader.read_word()
     let name_len = reader.read_word().to_int()
     let name_bytes = reader.read_bytes(n=name_len)
@@ -280,33 +299,50 @@ fn parse_entity_with_pid_tracking(
     for i in 0..<name_bytes.length() {
       name_chars = name_chars + name_bytes[i].to_char().to_string()
     }
-    let class_name = name_chars
+    class_name = name_chars
 
     // PIDを登録
-    let pid = next_pid
-    let new_p2c = pid_to_class
+    let pid = updated_next_pid
     if pid.reinterpret_as_int() < 65536 {
-      new_p2c[pid.reinterpret_as_int()] = class_name
+      updated_p2c[pid.reinterpret_as_int()] = class_name
     }
-    (class_name, new_p2c, pid + 1)
+    updated_next_pid = pid + 1
+
+    // 重要: 0xFFFFの場合、エンティティデータが直後に続く
+    // returnせずにエンティティパースを継続する
+
   } else if class_id == 0x8000 {
-    // Nullオブジェクト
-    return { entity: None, pid_to_class: pid_to_class, next_pid: next_pid + 1 }
+    // Nullオブジェクト - エンティティデータなし
+    return { entity: None, pid_to_class: updated_p2c, next_pid: next_pid + 1 }
+
   } else {
     // クラス参照: 0x8000 | class_pid
     let class_pid = (class_id & 0x7FFF)
     if class_pid < 65536 {
-      let name = pid_to_class[class_pid]
+      let name = updated_p2c[class_pid]
       if name == "" {
-        return { entity: None, pid_to_class: pid_to_class, next_pid: next_pid + 1 }
+        // 順方向参照: クラス定義がまだ見つかっていない
+        // エンティティデータをスキップ（とりあえずCDataSenとして仮定）
+        let _base = parse_entity_base(reader=reader, version=version)
+        let _skip1 = reader.read_double()
+        let _skip2 = reader.read_double()
+        let _skip3 = reader.read_double()
+        let _skip4 = reader.read_double()
+        return { entity: None, pid_to_class: updated_p2c, next_pid: next_pid + 1 }
       }
-      (name, pid_to_class, next_pid)
+      class_name = name
     } else {
-      return { entity: None, pid_to_class: pid_to_class, next_pid: next_pid + 1 }
+      // 不正なPID - エンティティデータをスキップ
+      let _base = parse_entity_base(reader=reader, version=version)
+      let _skip1 = reader.read_double()
+      let _skip2 = reader.read_double()
+      let _skip3 = reader.read_double()
+      let _skip4 = reader.read_double()
+      return { entity: None, pid_to_class: updated_p2c, next_pid: next_pid + 1 }
     }
   }
 
-  // クラス名に応じてエンティティをパース
+  // クラス名に応じてエンティティをパース（0xFFFF以外の全ケース）
   let entity = parse_entity_by_class(class_name=class_name, reader=reader, version=version)
 
   { entity: entity, pid_to_class: updated_p2c, next_pid: updated_next_pid + 1 }
