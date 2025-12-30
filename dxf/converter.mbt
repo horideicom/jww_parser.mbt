@@ -8,6 +8,22 @@ pub fn pi_value() -> Double {
 }
 
 ///|
+/// 浮動小数点数の等価性チェック（許容誤差付き）
+fn feq(a : Double, b : Double) -> Bool {
+  double_abs(a - b) < 0.000000001
+}
+
+///|
+/// Doubleの絶対値を取得
+fn double_abs(x : Double) -> Double {
+  if x < 0.0 {
+    -x
+  } else {
+    x
+  }
+}
+
+///|
 /// JWWドキュメントをDXFドキュメントに変換する
 pub fn convert_document(jww_doc~ : @core.Document) -> DxfDocument {
   let layers = convert_layers(jww_doc=jww_doc)
@@ -85,7 +101,7 @@ pub fn convert_entity(entity~ : @core.Entity, jww_doc~ : @core.Document) -> Opti
       }))
     }
     @core.Arc(arc) => {
-      if arc.is_full_circle && arc.flatness == 1.0 {
+      if arc.is_full_circle && feq(arc.flatness, 1.0) {
         // 完全円
         Some(DxfEntity::Circle({
           layer: layer_name,
@@ -95,21 +111,23 @@ pub fn convert_entity(entity~ : @core.Entity, jww_doc~ : @core.Document) -> Opti
           center_y: arc.center_y,
           radius: arc.radius
         }))
-      } else if arc.flatness != 1.0 {
+      } else if !feq(arc.flatness, 1.0) {
         // 楕円または楕円弧
-        let major_radius = arc.radius
-        let minor_ratio = arc.flatness
-        let tilt_angle = arc.tilt_angle
+        // 初期値を設定
+        let mut major_radius = arc.radius
+        let mut minor_ratio = arc.flatness
+        let mut tilt_angle = arc.tilt_angle
 
-        let (major_radius, minor_ratio, tilt_angle) = if minor_ratio > 1.0 {
-          // 軸を入れ替え
-          (arc.radius * arc.flatness, 1.0 / arc.flatness, arc.tilt_angle + pi_value() / 2.0)
-        } else {
-          (major_radius, minor_ratio, tilt_angle)
+        // 軸入れ替えロジック（minor_ratio > 1.0 の場合）
+        if minor_ratio > 1.0 {
+          major_radius = arc.radius * arc.flatness
+          minor_ratio = 1.0 / arc.flatness
+          tilt_angle = arc.tilt_angle + pi_value() / 2.0
         }
 
-        let major_axis_x = major_radius * tilt_angle
-        let major_axis_y = major_radius * tilt_angle
+        // 三角関数で長軸ベクトルを計算
+        let major_axis_x = major_radius * cos(tilt_angle)
+        let major_axis_y = major_radius * sin(tilt_angle)
 
         let (start_param, end_param) = if arc.is_full_circle {
           (0.0, 2.0 * pi_value())
@@ -308,3 +326,11 @@ pub fn map_line_type(pen_style~ : Byte) -> String {
 pub fn rad_to_deg(rad~ : Double) -> Double {
   rad * 180.0 / pi_value()
 }
+
+///|
+/// JavaScriptの Math.cos を呼び出す（JS FFI）
+pub fn cos(d : Double) -> Double = "Math" "cos"
+
+///|
+/// JavaScriptの Math.sin を呼び出す（JS FFI）
+pub fn sin(d : Double) -> Double = "Math" "sin"

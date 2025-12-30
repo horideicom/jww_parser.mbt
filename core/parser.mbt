@@ -95,11 +95,23 @@ fn read_cstring(reader~ : Reader) -> String {
     if len_word < 0xFFFF {
       len_word
     } else {
-      reader.read_dword().reinterpret_as_int()
+      let len_dword = reader.read_dword().reinterpret_as_int()
+      // 過度に大きな値は保護
+      if len_dword < 0 || len_dword > 1000000 {
+        0
+      } else {
+        len_dword
+      }
     }
   }
 
-  if length == 0 {
+  // 長さが負または過度に大きい場合は空文字列を返す
+  if length <= 0 || length > 1000000 {
+    return ""
+  }
+
+  // 残りデータが不足している場合は空文字列を返す
+  if reader.remaining() < length {
     return ""
   }
 
@@ -529,6 +541,11 @@ fn parse_block_def_list(data~ : Bytes, offset~ : Int, version~ : UInt) -> Array[
   let block_data = Bytes::from_array(data.to_array()[offset:data.length()])
   let reader = Reader::new(data=block_data)
 
+  // データが4バイト未満の場合は空配列を返す
+  if reader.remaining() < 4 {
+    return Array::new()
+  }
+
   let count = reader.read_dword()
 
   // カウントが異常な値の場合は空配列を返す
@@ -546,6 +563,10 @@ fn parse_block_def_list(data~ : Bytes, offset~ : Int, version~ : UInt) -> Array[
   let mut next_id : UInt16 = 1
 
   for _ in 0..<count.reinterpret_as_int() {
+    // データが不足している場合はループを中断
+    if reader.remaining() < 8 {
+      break
+    }
     let result = parse_block_def_with_tracking(reader=reader, version=version, class_map=class_map, next_id=next_id)
     match result.block_def {
       Some(bd) => block_defs.push(bd)
