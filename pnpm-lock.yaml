@@ -23,9 +23,9 @@ importers:
       '@f12o/three-dxf':
         specifier: ^1.3.1
         version: 1.3.1(three@0.148.0)
-      jww-parser-mbt:
-        specifier: ^2025.12.5
-        version: 2025.12.5
+      jww-parser:
+        specifier: ^2025.12.7
+        version: 2025.12.8
       three:
         specifier: 0.148.0
         version: 0.148.0
@@ -457,8 +457,8 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  jww-parser-mbt@2025.12.5:
-    resolution: {integrity: sha512-DyS4S35KnOcnO6ufXt+Ew/N76lTjUtHzbuUMy2we93PIhClQ8NDkvgTw1hwkjugBh18WBHxW4DUah7mGJBRxfw==}
+  jww-parser@2025.12.8:
+    resolution: {integrity: sha512-rIPPiJaChrhD1bbCiC7p6o1UU3QELgWxKPHupP+LEqLzJAg4afGZwZolrvAugnwB9hr/hL02yPXvAlYsUT37Xw==}
 
   loglevel@1.9.2:
     resolution: {integrity: sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==}
@@ -857,7 +857,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  jww-parser-mbt@2025.12.5: {}
+  jww-parser@2025.12.8: {}
 
   loglevel@1.9.2: {}
 

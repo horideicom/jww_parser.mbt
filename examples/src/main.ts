@@ -1,6 +1,6 @@
 import DxfParser from "@f12o/dxf-parser";
 import { Viewer } from "@f12o/three-dxf";
-import { jww_to_dxf } from "jww-parser-mbt";
+import { jww_to_dxf } from "jww-parser";
 import "./styles.css";
 
 type StatusType = "info" | "success" | "error";
