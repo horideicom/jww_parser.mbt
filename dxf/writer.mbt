@@ -23,18 +23,17 @@ pub fn to_string(doc~ : DxfDocument) -> String {
   output = output + ltype_table()
 
   // LAYERテーブル
-  output = output + layer_table(doc=doc)
+  output = output + layer_table(doc~)
 
   // STYLEテーブル
   output = output + style_table()
-
   output = output + "0\nENDSEC\n"
 
   // ブロックセクション
   if doc.blocks.length() > 0 {
     output = output + "0\nSECTION\n2\nBLOCKS\n"
     for block in doc.blocks {
-      output = output + write_block(block=block)
+      output = output + write_block(block~)
     }
     output = output + "0\nENDSEC\n"
   }
@@ -42,13 +41,12 @@ pub fn to_string(doc~ : DxfDocument) -> String {
   // エンティティセクション
   output = output + "0\nSECTION\n2\nENTITIES\n"
   for entity in doc.entities {
-    output = output + write_entity(entity=entity)
+    output = output + write_entity(entity~)
   }
   output = output + "0\nENDSEC\n"
 
   // ファイル終了
   output = output + "0\nEOF\n"
-
   output
 }
 
@@ -72,9 +70,8 @@ fn ltype_table() -> String {
     ("DIVIDE", "Divide", ""),
     ("CENTER", "Center", ""),
     ("BORDER", "Border", ""),
-    ("HIDDEN", "Hidden", "")
+    ("HIDDEN", "Hidden", ""),
   ]
-
   for lt in ltypes {
     let (name, desc, _) = lt
     output = output + "0\nLTYPE\n"
@@ -85,7 +82,6 @@ fn ltype_table() -> String {
     output = output + "73\n0\n"
     output = output + "40\n0.0\n"
   }
-
   output = output + "0\nENDTAB\n"
   output
 }
@@ -109,7 +105,6 @@ fn style_table() -> String {
   output = output + "42\n0.2\n"
   output = output + "3\ntxt\n"
   output = output + "4\n\n"
-
   output = output + "0\nENDTAB\n"
   output
 }
@@ -118,14 +113,12 @@ fn style_table() -> String {
 /// LAYERテーブルを生成
 fn layer_table(doc~ : DxfDocument) -> String {
   let mut output = ""
-
   output = output + "0\nTABLE\n2\nLAYER\n70\n"
   output = output + (doc.layers.length() + 1).to_string()
   output = output + "\n"
 
   // 必須レイヤー "0" (DXF仕様で必須)
   output = output + "0\nLAYER\n2\n0\n70\n0\n62\n7\n6\nCONTINUOUS\n"
-
   for layer in doc.layers {
     output = output + "0\nLAYER\n2\n"
     output = output + layer.name
@@ -141,7 +134,6 @@ fn layer_table(doc~ : DxfDocument) -> String {
     }
     output = output + "\n"
   }
-
   output = output + "0\nENDTAB\n"
   output
 }
@@ -150,7 +142,6 @@ fn layer_table(doc~ : DxfDocument) -> String {
 /// ブロックをDXF形式で出力
 fn write_block(block~ : DxfBlock) -> String {
   let mut output = ""
-
   output = output + "0\nBLOCK\n8\n0\n2\n"
   output = output + block.name
   output = output + "\n70\n0\n10\n"
@@ -158,11 +149,9 @@ fn write_block(block~ : DxfBlock) -> String {
   output = output + "\n20\n"
   output = output + block.base_y.to_string()
   output = output + "\n"
-
   for entity in block.entities {
-    output = output + write_entity(entity=entity)
+    output = output + write_entity(entity~)
   }
-
   output = output + "0\nENDBLK\n"
   output
 }

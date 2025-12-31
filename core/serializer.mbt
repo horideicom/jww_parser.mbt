@@ -13,7 +13,7 @@ pub fn serialize(doc~ : Document) -> Bytes {
   writer.write_dword(d=doc.version)
 
   // ヘッダー情報
-  write_cstring(writer=writer, s=doc.memo)
+  write_cstring(writer~, s=doc.memo)
   writer.write_dword(d=doc.paper_size)
   writer.write_dword(d=doc.write_layer_group)
 
@@ -23,7 +23,6 @@ pub fn serialize(doc~ : Document) -> Bytes {
     writer.write_dword(d=lg.write_layer)
     writer.write_double(d=lg.scale)
     writer.write_dword(d=lg.protect)
-
     for l in lg.layers {
       writer.write_dword(d=l.state)
       writer.write_dword(d=l.protect)
@@ -31,8 +30,7 @@ pub fn serialize(doc~ : Document) -> Bytes {
   }
 
   // エンティティリスト
-  write_entity_list(writer=writer, entities=doc.entities, version=doc.version)
-
+  write_entity_list(writer~, entities=doc.entities, version=doc.version)
   writer.to_bytes()
 }
 
@@ -40,10 +38,8 @@ pub fn serialize(doc~ : Document) -> Bytes {
 /// MFC CString形式で文字列を書き込む
 fn write_cstring(writer~ : Writer, s~ : String) -> Unit {
   // 簡易実装: ASCIIのみ対応
-  let bytes = string_to_ascii(s=s)
-
+  let bytes = string_to_ascii(s~)
   let len = bytes.length()
-
   if len < 255 {
     writer.write_byte(b=len.to_byte())
   } else if len < 65535 {
@@ -57,7 +53,6 @@ fn write_cstring(writer~ : Writer, s~ : String) -> Unit {
     writer.write_word(w=w65535.to_uint16())
     writer.write_dword(d=len.to_uint())
   }
-
   if len > 0 {
     writer.write_bytes(data=bytes)
   }
@@ -65,7 +60,11 @@ fn write_cstring(writer~ : Writer, s~ : String) -> Unit {
 
 ///|
 /// エンティティリストを書き込む
-fn write_entity_list(writer~ : Writer, entities~ : Array[Entity], version~ : UInt) -> Unit {
+fn write_entity_list(
+  writer~ : Writer,
+  entities~ : Array[Entity],
+  version~ : UInt,
+) -> Unit {
   let count = entities.length()
   writer.write_word(w=count.to_uint16())
 
@@ -75,16 +74,13 @@ fn write_entity_list(writer~ : Writer, entities~ : Array[Entity], version~ : UIn
     class_map.push("")
   }
   let mut next_pid : UInt = 1U
-
   for entity in entities {
     let (class_name, updated_map, updated_pid) = track_class(
-      entity=entity,
-      class_map=class_map,
-      next_pid=next_pid
+      entity~,
+      class_map~,
+      next_pid~,
     )
-
-    write_entity(writer=writer, entity=entity, class_name=class_name, version=version)
-
+    write_entity(writer~, entity~, class_name~, version~)
     class_map = updated_map
     next_pid = updated_pid
   }
@@ -95,9 +91,9 @@ fn write_entity_list(writer~ : Writer, entities~ : Array[Entity], version~ : UIn
 fn track_class(
   entity~ : Entity,
   class_map~ : Array[String],
-  next_pid~ : UInt
+  next_pid~ : UInt,
 ) -> (String, Array[String], UInt) {
-  let class_name = entity_class_name(entity=entity)
+  let class_name = entity_class_name(entity~)
 
   // 既存の PID を検索
   let mut found_pid : UInt = 0U
@@ -109,7 +105,6 @@ fn track_class(
     }
     i = i + 1
   }
-
   let (updated_map, updated_next_pid) = if found_pid != 0U {
     (class_map, next_pid)
   } else {
@@ -121,7 +116,6 @@ fn track_class(
     }
     (new_map, pid + 1)
   }
-
   (class_name, updated_map, updated_next_pid)
 }
 
@@ -144,7 +138,7 @@ fn write_entity(
   writer~ : Writer,
   entity~ : Entity,
   class_name~ : String,
-  version~ : UInt
+  version~ : UInt,
 ) -> Unit {
   // クラス ID（簡易実装: 常に新しいクラス定義）
   writer.write_word(w=(65535).to_uint16())
@@ -157,19 +151,19 @@ fn write_entity(
 
   // エンティティデータ
   match entity {
-    Line(line) => write_line(writer=writer, line=line, version=version)
-    Arc(arc) => write_arc(writer=writer, arc=arc, version=version)
-    Point(point) => write_point(writer=writer, point=point, version=version)
-    Text(text) => write_text(writer=writer, text=text, version=version)
-    Solid(solid) => write_solid(writer=writer, solid=solid, version=version)
-    Block(block) => write_block(writer=writer, block=block, version=version)
+    Line(line) => write_line(writer~, line~, version~)
+    Arc(arc) => write_arc(writer~, arc~, version~)
+    Point(point) => write_point(writer~, point~, version~)
+    Text(text) => write_text(writer~, text~, version~)
+    Solid(solid) => write_solid(writer~, solid~, version~)
+    Block(block) => write_block(writer~, block~, version~)
   }
 }
 
 ///|
 /// 直線を書き込む
 fn write_line(writer~ : Writer, line~ : Line, version~ : UInt) -> Unit {
-  write_entity_base(writer=writer, base=line.base, version=version)
+  write_entity_base(writer~, base=line.base, version~)
   writer.write_double(d=line.start_x)
   writer.write_double(d=line.start_y)
   writer.write_double(d=line.end_x)
@@ -179,7 +173,7 @@ fn write_line(writer~ : Writer, line~ : Line, version~ : UInt) -> Unit {
 ///|
 /// 円弧/円を書き込む
 fn write_arc(writer~ : Writer, arc~ : Arc, version~ : UInt) -> Unit {
-  write_entity_base(writer=writer, base=arc.base, version=version)
+  write_entity_base(writer~, base=arc.base, version~)
   writer.write_double(d=arc.center_x)
   writer.write_double(d=arc.center_y)
   writer.write_double(d=arc.radius)
@@ -193,11 +187,10 @@ fn write_arc(writer~ : Writer, arc~ : Arc, version~ : UInt) -> Unit {
 ///|
 /// 点を書き込む
 fn write_point(writer~ : Writer, point~ : Point, version~ : UInt) -> Unit {
-  write_entity_base(writer=writer, base=point.base, version=version)
+  write_entity_base(writer~, base=point.base, version~)
   writer.write_double(d=point.x)
   writer.write_double(d=point.y)
   writer.write_dword(d=if point.is_temporary { 1U } else { 0U })
-
   if point.base.pen_style == 100 {
     writer.write_dword(d=point.code)
     writer.write_double(d=point.angle)
@@ -208,7 +201,7 @@ fn write_point(writer~ : Writer, point~ : Point, version~ : UInt) -> Unit {
 ///|
 /// 文字を書き込む
 fn write_text(writer~ : Writer, text~ : Text, version~ : UInt) -> Unit {
-  write_entity_base(writer=writer, base=text.base, version=version)
+  write_entity_base(writer~, base=text.base, version~)
   writer.write_double(d=text.start_x)
   writer.write_double(d=text.start_y)
   writer.write_double(d=text.end_x)
@@ -218,14 +211,14 @@ fn write_text(writer~ : Writer, text~ : Text, version~ : UInt) -> Unit {
   writer.write_double(d=text.size_y)
   writer.write_double(d=text.spacing)
   writer.write_double(d=text.angle)
-  write_cstring(writer=writer, s=text.font_name)
-  write_cstring(writer=writer, s=text.content)
+  write_cstring(writer~, s=text.font_name)
+  write_cstring(writer~, s=text.content)
 }
 
 ///|
 /// 塗りつぶしを書き込む
 fn write_solid(writer~ : Writer, solid~ : Solid, version~ : UInt) -> Unit {
-  write_entity_base(writer=writer, base=solid.base, version=version)
+  write_entity_base(writer~, base=solid.base, version~)
   writer.write_double(d=solid.point1_x)
   writer.write_double(d=solid.point1_y)
   writer.write_double(d=solid.point4_x)
@@ -234,7 +227,6 @@ fn write_solid(writer~ : Writer, solid~ : Solid, version~ : UInt) -> Unit {
   writer.write_double(d=solid.point2_y)
   writer.write_double(d=solid.point3_x)
   writer.write_double(d=solid.point3_y)
-
   if solid.base.pen_color == 10 {
     writer.write_dword(d=solid.color)
   }
@@ -243,7 +235,7 @@ fn write_solid(writer~ : Writer, solid~ : Solid, version~ : UInt) -> Unit {
 ///|
 /// ブロックを書き込む
 fn write_block(writer~ : Writer, block~ : Block, version~ : UInt) -> Unit {
-  write_entity_base(writer=writer, base=block.base, version=version)
+  write_entity_base(writer~, base=block.base, version~)
   writer.write_double(d=block.ref_x)
   writer.write_double(d=block.ref_y)
   writer.write_double(d=block.scale_x)
@@ -254,15 +246,17 @@ fn write_block(writer~ : Writer, block~ : Block, version~ : UInt) -> Unit {
 
 ///|
 /// エンティティ基本属性を書き込む
-fn write_entity_base(writer~ : Writer, base~ : EntityBase, version~ : UInt) -> Unit {
+fn write_entity_base(
+  writer~ : Writer,
+  base~ : EntityBase,
+  version~ : UInt,
+) -> Unit {
   writer.write_dword(d=base.group)
   writer.write_byte(b=base.pen_style)
   writer.write_word(w=base.pen_color)
-
   if version >= 351 {
     writer.write_word(w=base.pen_width)
   }
-
   writer.write_word(w=base.layer)
   writer.write_word(w=base.layer_group)
   writer.write_word(w=base.flag)

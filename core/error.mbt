@@ -3,22 +3,16 @@
 pub enum ParseError {
   /// 無効なシグネチャ（"JwwData."でない）
   InvalidSignature
-
   /// サポートされていないバージョン
   UnsupportedVersion(UInt)
-
   /// 不明なクラスPID
   UnknownClassPid(UInt)
-
   /// 不明なエンティティクラス
   UnknownEntityClass(String)
-
   /// データの予期せぬ終了
   UnexpectedEof
-
   /// I/Oエラー
   IoError(String)
-
   /// その他のエラー
   Other(String)
 }

@@ -73,7 +73,14 @@ pub fn Reader::read_uint64(self : Reader) -> UInt64 {
   let b5 = self.read_byte().to_uint64()
   let b6 = self.read_byte().to_uint64()
   let b7 = self.read_byte().to_uint64()
-  b0 | (b1 << 8) | (b2 << 16) | (b3 << 24) | (b4 << 32) | (b5 << 40) | (b6 << 48) | (b7 << 56)
+  b0 |
+  (b1 << 8) |
+  (b2 << 16) |
+  (b3 << 24) |
+  (b4 << 32) |
+  (b5 << 40) |
+  (b6 << 48) |
+  (b7 << 56)
 }
 
 ///|

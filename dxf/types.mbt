@@ -43,8 +43,8 @@ pub struct DxfArc {
   center_x : Double
   center_y : Double
   radius : Double
-  start_angle : Double  // 度
-  end_angle : Double    // 度
+  start_angle : Double // 度
+  end_angle : Double // 度
 }
 
 ///|
@@ -81,7 +81,7 @@ pub struct DxfText {
   x : Double
   y : Double
   height : Double
-  rotation : Double  // 度
+  rotation : Double // 度
   content : String
   style : String
 }
@@ -113,7 +113,7 @@ pub struct DxfInsert {
   y : Double
   scale_x : Double
   scale_y : Double
-  rotation : Double  // 度
+  rotation : Double // 度
 }
 
 ///|
@@ -149,11 +149,7 @@ pub struct DxfDocument {
 ///|
 /// DXFドキュメントのデフォルト値
 pub fn DxfDocument::default() -> DxfDocument {
-  {
-    layers: Array::new(),
-    entities: Array::new(),
-    blocks: Array::new()
-  }
+  { layers: Array::new(), entities: Array::new(), blocks: Array::new() }
 }
 
 ///|

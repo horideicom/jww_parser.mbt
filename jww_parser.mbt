@@ -1,27 +1,27 @@
 ///|
 /// JWWファイルをパースしてドキュメントを取得
 pub fn parse(data~ : Bytes) -> @core.Document {
-  @core.parse(data=data)
+  @core.parse(data~)
 }
 
 ///|
 /// JWWドキュメントをDXFドキュメントに変換
 pub fn to_dxf_document(jww_doc~ : @core.Document) -> @dxf.DxfDocument {
-  @dxf.convert_document(jww_doc=jww_doc)
+  @dxf.convert_document(jww_doc~)
 }
 
 ///|
 /// JWWドキュメントをDXF文字列に変換
 pub fn to_dxf_string(jww_doc~ : @core.Document) -> String {
-  let dxf_doc = @dxf.convert_document(jww_doc=jww_doc)
+  let dxf_doc = @dxf.convert_document(jww_doc~)
   @dxf.to_string(doc=dxf_doc)
 }
 
 ///|
 /// JWWバイナリデータを直接DXF文字列に変換
 pub fn jww_to_dxf(data~ : Bytes) -> String {
-  let jww_doc = @core.parse(data=data)
-  let dxf_doc = @dxf.convert_document(jww_doc=jww_doc)
+  let jww_doc = @core.parse(data~)
+  let dxf_doc = @dxf.convert_document(jww_doc~)
   @dxf.to_string(doc=dxf_doc)
 }
 

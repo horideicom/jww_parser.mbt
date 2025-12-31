@@ -6,22 +6,16 @@
 pub struct EntityBase {
   /// 曲線属性番号 (線種グループ)
   group : UInt
-
   /// 線種番号
   pen_style : Byte
-
   /// 線色番号 (1-9は基本色、拡張値はSXF色)
   pen_color : UInt16
-
   /// 線幅 (Ver.3.51以降で利用可能)
   pen_width : UInt16
-
   /// レイヤ番号 (0-15)
   layer : UInt16
-
   /// レイヤグループ番号 (0-15)
   layer_group : UInt16
-
   /// 各種属性フラグ
   flag : UInt16
 } derive(Show, Eq)
@@ -43,10 +37,10 @@ pub struct Arc {
   center_x : Double
   center_y : Double
   radius : Double
-  start_angle : Double  // ラジアン
-  arc_angle : Double    // ラジアン
-  tilt_angle : Double   // ラジアン（楕円の場合）
-  flatness : Double     // 1.0は真円、それ以外は楕円
+  start_angle : Double // ラジアン
+  arc_angle : Double // ラジアン
+  tilt_angle : Double // ラジアン（楕円の場合）
+  flatness : Double // 1.0は真円、それ以外は楕円
   is_full_circle : Bool
 } derive(Show, Eq)
 
@@ -70,11 +64,11 @@ pub struct Text {
   start_y : Double
   end_x : Double
   end_y : Double
-  text_type : UInt  // +10000でイタリック、+20000で太字
+  text_type : UInt // +10000でイタリック、+20000で太字
   size_x : Double
   size_y : Double
-  spacing : Double  // 文字間隔
-  angle : Double    // 回転角度（度）
+  spacing : Double // 文字間隔
+  angle : Double // 回転角度（度）
   font_name : String
   content : String
 } derive(Show, Eq)
@@ -91,19 +85,19 @@ pub struct Solid {
   point3_y : Double
   point4_x : Double
   point4_y : Double
-  color : UInt  // pen_color == 10の時使用
+  color : UInt // pen_color == 10の時使用
 } derive(Show, Eq)
 
 ///|
 /// ブロック挿入エンティティ (JWWクラス: CDataBlock)
 pub struct Block {
   base : EntityBase
-  ref_x : Double  // 挿入基準点X
-  ref_y : Double  // 挿入基準点Y
+  ref_x : Double // 挿入基準点X
+  ref_y : Double // 挿入基準点Y
   scale_x : Double
   scale_y : Double
-  rotation : Double  // ラジアン
-  def_number : UInt  // 参照先ブロック定義番号
+  rotation : Double // ラジアン
+  def_number : UInt // 参照先ブロック定義番号
 } derive(Show, Eq)
 
 ///|
@@ -182,7 +176,7 @@ pub fn EntityBase::default() -> EntityBase {
     pen_width: 0,
     layer: 0,
     layer_group: 0,
-    flag: 0
+    flag: 0,
   }
 }
 
@@ -200,14 +194,7 @@ pub fn LayerGroup::default() -> LayerGroup {
   for _ in 0..<16 {
     layers.push(Layer::default())
   }
-  {
-    state: 2,
-    write_layer: 0,
-    scale: 1.0,
-    protect: 0,
-    layers: layers,
-    name: ""
-  }
+  { state: 2, write_layer: 0, scale: 1.0, protect: 0, layers, name: "" }
 }
 
 ///|
@@ -223,9 +210,9 @@ pub fn Document::default() -> Document {
     memo: "",
     paper_size: 0,
     write_layer_group: 0,
-    layer_groups: layer_groups,
+    layer_groups,
     entities: Array::new(),
-    block_defs: Array::new()
+    block_defs: Array::new(),
   }
 }
 

@@ -8,9 +8,7 @@ test "writer dword roundtrip" {
   let test_val = 42U
   writer.write_dword(d=test_val)
   let bytes = writer.to_bytes()
-
   inspect(bytes.length(), content="4")
-
   let b0 = bytes[0].to_uint()
   let b1 = bytes[1].to_uint()
   let b2 = bytes[2].to_uint()
@@ -23,7 +21,7 @@ test "writer dword roundtrip" {
 /// シリアライズされたデータが正しいシグネチャで始まる
 test "serialize signature" {
   let doc = Document::default()
-  let bytes = serialize(doc=doc)
+  let bytes = serialize(doc~)
   inspect(bytes.length() >= 8, content="true")
   inspect(bytes[0], content="b'\\x4A'")
   inspect(bytes[1], content="b'\\x77'")
