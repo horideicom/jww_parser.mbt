@@ -1,6 +1,13 @@
 {
   "import": [
-    { "path": "f4ah6o/jww_parser/core", "alias": "core" },
-    { "path": "moonbitlang/quickcheck", "alias": "qc" }
-  ]
+    { "path": "f4ah6o/jww_parser/core", "alias": "core" }
+  ],
+  "link": {
+    "wasm-gc": {
+      "foreign": true,
+      "wasm-import-modules": {
+        "Math": "Math"
+      }
+    }
+  }
 }

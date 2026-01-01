@@ -14,7 +14,7 @@
     "jww-parser": "^2025.12.7",
     "three": "0.148.0",
     "three-stdlib": "^2.36.1",
-    "jww-parser-mbt": "^2025.12.9"
+    "jww-parser-mbt": "^2025.12.10"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

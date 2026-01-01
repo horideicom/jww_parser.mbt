@@ -51,7 +51,7 @@ fn write_cstring(writer~ : Writer, s~ : String) -> Unit {
     let w65535 : Int = 65535
     writer.write_byte(b=b255.to_byte())
     writer.write_word(w=w65535.to_uint16())
-    writer.write_dword(d=len.to_uint())
+    writer.write_dword(d=len.reinterpret_as_uint())
   }
   if len > 0 {
     writer.write_bytes(data=bytes)
@@ -100,7 +100,7 @@ fn track_class(
   let mut i = 1
   while i <= 255 && i <= class_map.length() - 1 {
     if class_map[i] == class_name {
-      found_pid = i.to_uint()
+      found_pid = i.reinterpret_as_uint()
       break
     }
     i = i + 1

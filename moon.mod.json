@@ -1,6 +1,6 @@
 {
   "name": "f4ah6o/jww_parser",
-  "version": "2025.12.9",
+  "version": "2025.12.10",
   "deps": {
     "moonbitlang/quickcheck": "0.9.8",
     "f4ah6o/encoding_sjis": "*"

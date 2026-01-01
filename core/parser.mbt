@@ -241,20 +241,6 @@ fn parse_entity_list(
 }
 
 ///|
-/// エンティティリストをスキャンしてクラス定義を収集する（順方向参照対策）
-fn scan_class_definitions(
-  entity_data~ : Bytes,
-  version~ : UInt,
-) -> Array[String] {
-  // 使用しない - 1パス方式に戻す
-  let pid_to_class = Array::new()
-  for _ in 0..<65536 {
-    pid_to_class.push("")
-  }
-  pid_to_class
-}
-
-///|
 /// PIDトラッキング結果
 priv struct PidTrackingResult {
   entity : Entity?

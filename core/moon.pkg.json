@@ -1,6 +1,6 @@
 {
   "import": [
-    { "path": "moonbitlang/quickcheck", "alias": "qc" },
     { "path": "f4ah6o/encoding_sjis", "alias": "encoding_sjis" }
-  ]
+  ],
+  "warn-list": "-6"
 }
