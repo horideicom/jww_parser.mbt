@@ -101,6 +101,18 @@ pub struct Block {
 } derive(Show, Eq)
 
 ///|
+/// 画像エンティティ (CDataMojiの^@BM形式から変換)
+pub struct Image {
+  base : EntityBase
+  image_path : String // 画像ファイルパス
+  x : Double // 挿入位置X
+  y : Double // 挿入位置Y
+  width : Double // 幅
+  height : Double // 高さ
+  rotation : Double // 回転角度（度）
+} derive(Show, Eq)
+
+///|
 /// エンティティ種別
 pub enum Entity {
   Line(Line)
@@ -109,6 +121,7 @@ pub enum Entity {
   Text(Text)
   Solid(Solid)
   Block(Block)
+  Image(Image)
 } derive(Show, Eq)
 
 ///|
@@ -226,6 +239,7 @@ pub fn Entity::base(self : Entity) -> EntityBase {
     Text(t) => t.base
     Solid(s) => s.base
     Block(b) => b.base
+    Image(i) => i.base
   }
 }
 
@@ -239,5 +253,6 @@ pub fn Entity::type_name(self : Entity) -> String {
     Text(_) => "TEXT"
     Solid(_) => "SOLID"
     Block(_) => "BLOCK"
+    Image(_) => "IMAGE"
   }
 }

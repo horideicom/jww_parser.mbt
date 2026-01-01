@@ -401,22 +401,46 @@ fn parse_entity_by_class(
     let angle = reader.read_double()
     let font_name = read_cstring(reader~)
     let content = read_cstring(reader~)
-    Some(
-      Entity::Text({
-        base,
-        start_x,
-        start_y,
-        end_x,
-        end_y,
-        text_type,
-        size_x,
-        size_y,
-        spacing,
-        angle,
-        font_name,
-        content,
-      }),
-    )
+    // ^@BMで始まる場合は画像エンティティとして処理
+    if content.has_prefix("^@BM") {
+      match parse_image_from_bm_string(content~, base~, start_x~, start_y~, angle~, size_x~, size_y~) {
+        Some(image) => Some(Entity::Image(image))
+        None =>
+          Some(
+            Entity::Text({
+              base,
+              start_x,
+              start_y,
+              end_x,
+              end_y,
+              text_type,
+              size_x,
+              size_y,
+              spacing,
+              angle,
+              font_name,
+              content,
+            }),
+          )
+      }
+    } else {
+      Some(
+        Entity::Text({
+          base,
+          start_x,
+          start_y,
+          end_x,
+          end_y,
+          text_type,
+          size_x,
+          size_y,
+          spacing,
+          angle,
+          font_name,
+          content,
+        }),
+      )
+    }
   } else if class_name == "CDataSolid" {
     let base = parse_entity_base(reader~, version~)
     let point1_x = reader.read_double()
@@ -660,5 +684,109 @@ fn parse_block_def_with_tracking(
     }),
     class_map: updated_class_map,
     next_id: updated_next_id,
+  }
+}
+
+///|
+/// @BM形式の文字列から画像情報をパースする
+fn parse_image_from_bm_string(
+  content~ : String,
+  base~ : EntityBase,
+  start_x~ : Double,
+  start_y~ : Double,
+  angle~ : Double,
+  size_x~ : Double,
+  size_y~ : Double,
+) -> Image? {
+  // "^@BM" を除去 (4文字)
+  let chars = content.to_array()
+  if chars.length() <= 4 {
+    return None
+  }
+  let path_and_params = String::from_array(chars[4:])
+  // カンマで分割
+  let parts = split_by_comma(path_and_params~)
+  if parts.length() < 1 {
+    return None
+  }
+  // 最初の部分がファイルパス
+  let raw_path = parts[0]
+  let image_path = normalize_image_path(raw_path~)
+  // 幅と高さ: JWWはsize_x, size_yを使用（または後続パラメータ）
+  let width = if parts.length() >= 2 {
+    parse_double_or_default(parts[1], size_x)
+  } else {
+    size_x
+  }
+  let height = if parts.length() >= 3 {
+    parse_double_or_default(parts[2], size_y)
+  } else {
+    size_y
+  }
+  Some(
+    {
+      base,
+      image_path,
+      x: start_x,
+      y: start_y,
+      width,
+      height,
+      rotation: angle,
+    },
+  )
+}
+
+///|
+/// 文字列をカンマで分割する
+fn split_by_comma(path_and_params~ : String) -> Array[String] {
+  let result = Array::new()
+  let mut current = ""
+  for c in path_and_params {
+    if c == ',' {
+      result.push(current)
+      current = ""
+    } else {
+      current = current + c.to_string()
+    }
+  }
+  if current != "" {
+    result.push(current)
+  }
+  result
+}
+
+///|
+/// 画像パスを正規化する（%temp%などの環境変数プレフィックスを処理）
+fn normalize_image_path(raw_path~ : String) -> String {
+  let all_chars = raw_path.to_array()
+  // %temp%プレフィックスを除去
+  let chars = if raw_path.has_prefix("%temp%") && all_chars.length() > 6 {
+    Array::from_iter(all_chars[6:].iter())
+  } else {
+    all_chars
+  }
+  // アンダースコアをスラッシュに変換（JWW特有のパス変換）
+  // 例: C_Users_... -> C:/Users/...
+  let mut normalized = ""
+  let mut prev_was_letter = false
+  for c in chars {
+    if c == '_' && prev_was_letter {
+      normalized = normalized + "/"
+      prev_was_letter = false
+    } else {
+      normalized = normalized + c.to_string()
+      prev_was_letter = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
+    }
+  }
+  normalized
+}
+
+///|
+/// 文字列をDoubleにパースする（失敗時はデフォルト値を返す）
+fn parse_double_or_default(s : String, default : Double) -> Double {
+  try {
+    @strconv.parse_double(s)
+  } catch {
+    _ => default
   }
 }

@@ -129,6 +129,7 @@ fn entity_class_name(entity~ : Entity) -> String {
     Text(_) => "CDataMoji"
     Solid(_) => "CDataSolid"
     Block(_) => "CDataBlock"
+    Image(_) => "CDataMoji" // 画像はCDataMoji形式で書き込む
   }
 }
 
@@ -157,6 +158,7 @@ fn write_entity(
     Text(text) => write_text(writer~, text~, version~)
     Solid(solid) => write_solid(writer~, solid~, version~)
     Block(block) => write_block(writer~, block~, version~)
+    Image(image) => write_image(writer~, image~, version~)
   }
 }
 
@@ -242,6 +244,31 @@ fn write_block(writer~ : Writer, block~ : Block, version~ : UInt) -> Unit {
   writer.write_double(d=block.scale_y)
   writer.write_double(d=block.rotation)
   writer.write_dword(d=block.def_number)
+}
+
+///|
+/// 画像を書き込む（CDataMoji形式で^@BM文字列として）
+fn write_image(writer~ : Writer, image~ : Image, version~ : UInt) -> Unit {
+  write_entity_base(writer~, base=image.base, version~)
+  writer.write_double(d=image.x)
+  writer.write_double(d=image.y)
+  writer.write_double(d=image.x + image.width) // end_x
+  writer.write_double(d=image.y + image.height) // end_y
+  writer.write_dword(d=0U) // text_type
+  writer.write_double(d=image.width) // size_x
+  writer.write_double(d=image.height) // size_y
+  writer.write_double(d=0.0) // spacing
+  writer.write_double(d=image.rotation) // angle
+  write_cstring(writer~, s="") // font_name
+  // ^@BM形式のコンテンツを構築
+  let content =
+    "^@BM" +
+    image.image_path +
+    "," +
+    image.width.to_string() +
+    "," +
+    image.height.to_string()
+  write_cstring(writer~, s=content)
 }
 
 ///|

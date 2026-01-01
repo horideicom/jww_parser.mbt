@@ -225,6 +225,24 @@ pub fn convert_entity(
         }),
       )
     }
+    @core.Image(image) => {
+      // 画像の位置にテキストラベル（画像パス）を配置
+      // DXFは画像を直接サポートしないため、参照情報として出力
+      let height = if image.height <= 0.0 { 2.5 } else { image.height / 10.0 }
+      Some(
+        DxfEntity::Text({
+          layer: layer_name,
+          color,
+          line_type,
+          x: image.x,
+          y: image.y,
+          height,
+          rotation: image.rotation,
+          content: "[IMAGE: " + image.image_path + "]",
+          style: "STANDARD",
+        }),
+      )
+    }
   }
 }
 

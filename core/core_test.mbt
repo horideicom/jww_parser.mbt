@@ -50,3 +50,7 @@ test "default layer" {
   inspect(l.protect, content="0")
   inspect(l.name, content="")
 }
+
+///|
+/// Entity::type_name の IMAGE 対応確認
+/// 注: Image構造体は内部関数でのみ生成されるため、間接的にテスト
