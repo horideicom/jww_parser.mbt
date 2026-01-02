@@ -141,6 +141,20 @@ pub struct EmbeddedImage {
 } derive(Show, Eq)
 
 ///|
+/// 印刷設定情報
+pub struct PrintSettings {
+  /// 印刷出力範囲の基点X
+  origin_x : Double
+  /// 印刷出力範囲の基点Y
+  origin_y : Double
+  /// 印刷出力倍率
+  scale : Double
+  /// 印刷90度回転・基準点位置
+  /// 0:原点 1:左下 2:右下 3:左上 4:右上 5:中心 6:左 7:上 8:右 9:下
+  rotation_setting : UInt
+} derive(Show, Eq)
+
+///|
 /// エンティティ種別
 pub enum Entity {
   Line(Line)
@@ -207,6 +221,8 @@ pub struct Document {
   block_defs : Array[BlockDef]
   /// 同梱画像 (Ver.7.00+)
   embedded_images : Array[EmbeddedImage]
+  /// 印刷設定
+  print_settings : PrintSettings
 } derive(Show, Eq)
 
 ///|
@@ -257,6 +273,12 @@ pub fn Document::default() -> Document {
     entities: Array::new(),
     block_defs: Array::new(),
     embedded_images: Array::new(),
+    print_settings: {
+      origin_x: 0.0,
+      origin_y: 0.0,
+      scale: 1.0,
+      rotation_setting: 0,
+    },
   }
 }
 

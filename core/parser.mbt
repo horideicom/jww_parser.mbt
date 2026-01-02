@@ -8,6 +8,27 @@ pub fn signature() -> Bytes {
 }
 
 ///|
+/// 印刷設定をパースする
+fn parse_print_settings(reader~ : Reader) -> PrintSettings {
+  // 印刷出力範囲の基点(X,Y)
+  let origin_x = reader.read_double()
+  let origin_y = reader.read_double()
+
+  // 印刷出力倍率
+  let scale = reader.read_double()
+
+  // 印刷90度回転・基準点位置
+  let rotation_setting = reader.read_dword()
+
+  {
+    origin_x,
+    origin_y,
+    scale,
+    rotation_setting,
+  }
+}
+
+///|
 /// JWWファイルをパースする
 pub fn parse(data~ : Bytes) -> Document {
   // シグネチャ検証
@@ -46,6 +67,9 @@ pub fn parse(data~ : Bytes) -> Document {
     layer_groups.push({ state, write_layer, scale, protect, layers, name: "" })
   }
 
+  // 印刷設定を読み取り
+  let print_settings = parse_print_settings(reader~)
+
   // エンティティリスト開始位置を探索
   let entity_offset = find_entity_list_offset(data~, version~)
   let (entities, block_defs, block_end_offset) = match entity_offset {
@@ -82,6 +106,7 @@ pub fn parse(data~ : Bytes) -> Document {
     entities,
     block_defs,
     embedded_images,
+    print_settings,
   }
 }
 
