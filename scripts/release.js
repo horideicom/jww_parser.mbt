@@ -109,7 +109,7 @@ async function main() {
     // 4. npm publish
     console.log('\n━━━ Publish Phase ━━━');
 
-    if (!runCommand('npm publish --access public', 'Publishing to npm')) {
+    if (!runCommand('pnpm publish --otp $(op item get "npmjs" --otp)', 'Publishing to npm')) {
       throw new Error('npm publish failed');
     }
 
