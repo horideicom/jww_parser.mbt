@@ -29,6 +29,90 @@ fn parse_print_settings(reader~ : Reader) -> PrintSettings {
 }
 
 ///|
+/// 日光設定をパースする
+fn parse_sunpou_settings(reader~ : Reader) -> SunpouSettings {
+  // 14個のDWORDをスキップ（予備）
+  for _ in 0..<14 {
+    let _ = reader.read_dword()
+  }
+
+  // 日光設定 (m_lnSunpou1〜5)
+  let sunpou1 = reader.read_dword()
+  let sunpou2 = reader.read_dword()
+  let sunpou3 = reader.read_dword()
+  let sunpou4 = reader.read_dword()
+  let sunpou5 = reader.read_dword()
+
+  // 予備 (1個のDWORD)
+  let dummy = reader.read_dword()
+
+  // 線の最大幅
+  let max_line_width = reader.read_dword()
+
+  {
+    sunpou1,
+    sunpou2,
+    sunpou3,
+    sunpou4,
+    sunpou5,
+    dummy,
+    max_line_width,
+  }
+}
+
+///|
+/// レイヤ名とグループ名をパースする
+fn parse_layer_names(
+  reader~ : Reader,
+  layer_groups~ : Array[LayerGroup],
+) -> Array[LayerGroup] {
+  // parse_sunpou_settingsで既に日光設定等を読み取っているため、
+  // ここではスキップ処理は不要
+
+  // レイヤ名を256個読み取る (16グループ x 16レイヤ)
+  let layer_names = Array::new()
+  for _g_idx in 0..<16 {
+    let group_layer_names = Array::new()
+    for _l_idx in 0..<16 {
+      let name = read_cstring(reader~)
+      group_layer_names.push(name)
+    }
+    layer_names.push(group_layer_names)
+  }
+
+  // グループレイヤ名を16個読み取る
+  let group_names = Array::new()
+  for _g_idx in 0..<16 {
+    let name = read_cstring(reader~)
+    group_names.push(name)
+  }
+
+  // 読み取った名前をlayer_groupsに反映
+  let result = Array::new()
+  for g_idx in 0..<layer_groups.length() {
+    let lg = layer_groups[g_idx]
+    let group_name = group_names[g_idx]
+    let layers = Array::new()
+    for l_idx in 0..<lg.layers.length() {
+      let l = lg.layers[l_idx]
+      let layer_name = layer_names[g_idx][l_idx]
+      let new_layer = { state: l.state, protect: l.protect, name: layer_name }
+      layers.push(new_layer)
+    }
+    let new_group = {
+      state: lg.state,
+      write_layer: lg.write_layer,
+      scale: lg.scale,
+      protect: lg.protect,
+      layers,
+      name: group_name,
+    }
+    result.push(new_group)
+  }
+  result
+}
+
+///|
 /// JWWファイルをパースする
 pub fn parse(data~ : Bytes) -> Document {
   // シグネチャ検証
@@ -70,6 +154,12 @@ pub fn parse(data~ : Bytes) -> Document {
   // 印刷設定を読み取り
   let print_settings = parse_print_settings(reader~)
 
+  // 日光設定を読み取り
+  let sunpou_settings = parse_sunpou_settings(reader~)
+
+  // レイヤ名を読み取り
+  let layer_groups = parse_layer_names(reader~, layer_groups~)
+
   // エンティティリスト開始位置を探索
   let entity_offset = find_entity_list_offset(data~, version~)
   let (entities, block_defs, block_end_offset) = match entity_offset {
@@ -107,6 +197,8 @@ pub fn parse(data~ : Bytes) -> Document {
     block_defs,
     embedded_images,
     print_settings,
+    sunpou_settings,
+    metadata_settings: MetadataSettings::default(),
   }
 }
 
@@ -179,6 +271,14 @@ fn set_layer_names(layer_groups~ : Array[LayerGroup]) -> Array[LayerGroup] {
     result.push(new_group)
   }
   result
+}
+
+///|
+/// メタデータプレフィックスかどうかを判定する
+fn is_metadata_text(content~ : String) -> Bool {
+  content.has_prefix("Printer_") ||
+  content.has_prefix("Draw_") ||
+  content.has_prefix("View_")
 }
 
 ///|
@@ -425,8 +525,11 @@ fn parse_entity_by_class(
     let angle = reader.read_double()
     let font_name = read_cstring(reader~)
     let content = read_cstring(reader~)
-    // ^@BMを含む場合は画像エンティティとして処理
-    if find_bm_marker(content~) is Some(_) {
+    // メタデータ設定はエンティティとして追加しない
+    if is_metadata_text(content~) {
+      None
+      // ^@BMを含む場合は画像エンティティとして処理
+    } else if find_bm_marker(content~) is Some(_) {
       match
         parse_image_from_bm_string(
           content~,

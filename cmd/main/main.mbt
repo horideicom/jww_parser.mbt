@@ -1,10 +1,4 @@
 ///|
-/// JWWファイルをDXF文字列に変換
-pub fn jww_to_dxf(data : Bytes) -> String {
-  @lib.jww_to_dxf(data~)
-}
-
-///|
 /// JWWファイルをJSON文字列にパース
 pub fn jww_to_json(data : Bytes) -> String {
   let doc = @lib.parse(data~)

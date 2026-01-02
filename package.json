@@ -1,7 +1,7 @@
 {
   "name": "jww-parser",
-  "version": "2025.12.11",
-  "description": "JWW file parser and DXF converter powered by MoonBit",
+  "version": "2026.1.0",
+  "description": "JWW file parser with JSON output powered by MoonBit",
   "author": "f12o",
   "license": "AGPL-3.0",
   "repository": {
@@ -10,12 +10,11 @@
   },
   "keywords": [
     "jww",
-    "dxf",
     "cad",
     "parser",
-    "converter",
     "moonbit",
-    "webassembly"
+    "webassembly",
+    "json"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

@@ -1,15 +1,11 @@
 {
   "import": [
-    { "path": "f4ah6o/jww_parser/core", "alias": "core" },
-    { "path": "f4ah6o/jww_parser/dxf", "alias": "dxf" }
+    { "path": "f4ah6o/jww_parser/core", "alias": "core" }
   ],
   "link": {
     "js": {
       "exports": [
         "parse",
-        "to_dxf_document",
-        "to_dxf_string",
-        "jww_to_dxf",
         "to_json_string"
       ],
       "use-js-builtin-string": true,

@@ -54,3 +54,26 @@ test "default layer" {
 ///|
 /// Entity::type_name の IMAGE 対応確認
 /// 注: Image構造体は内部関数でのみ生成されるため、間接的にテスト
+
+///|
+/// PrintSettings の基本プロパティ
+test "default print settings" {
+  let doc = Document::default()
+  let ps = doc.print_settings
+  inspect(ps.origin_x, content="0")
+  inspect(ps.origin_y,   content="0")
+  inspect(ps.scale,      content="1")
+  inspect(ps.rotation_setting, content="0")
+}
+
+///|
+/// MetadataSettings の基本プロパティ
+test "default metadata settings" {
+  let ms = MetadataSettings::default()
+  inspect(ms.printer_paper_size, content="")
+  inspect(ms.draw_bmp_touka, content="")
+  inspect(ms.view_direct2d, content="")
+  inspect(ms.printer_bmp_zentai, content="")
+  inspect(ms.printer_orientation, content="")
+  inspect(ms.printer_d2d_bmp, content="")
+}

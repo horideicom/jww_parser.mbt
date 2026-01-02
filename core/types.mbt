@@ -155,6 +155,42 @@ pub struct PrintSettings {
 } derive(Show, Eq)
 
 ///|
+/// 日光設定（寸法設定）
+pub struct SunpouSettings {
+  /// m_lnSunpou1: 文字種・寸法小数点・単位等
+  sunpou1 : UInt
+  /// m_lnSunpou2: 寸法値係数・矢印の大きさ
+  sunpou2 : UInt
+  /// m_lnSunpou3: 文字サイズ・角度・矢印突き出し
+  sunpou3 : UInt
+  /// m_lnSunpou4: 補正フラグ
+  sunpou4 : UInt
+  /// m_lnSunpou5: 文字スタイル・角度単位
+  sunpou5 : UInt
+  /// 予備 (1個のDWORD)
+  dummy : UInt
+  /// 線の最大幅
+  max_line_width : UInt
+} derive(Show, Eq)
+
+///|
+/// メタデータ設定（CDataMojiに埋め込まれた設定情報）
+pub struct MetadataSettings {
+  /// プリンター用紙サイズ設定
+  printer_paper_size : String
+  /// BMP透過設定
+  draw_bmp_touka : String
+  /// Direct2D表示設定
+  view_direct2d : String
+  /// プリンターBMP全体設定
+  printer_bmp_zentai : String
+  /// プリンター方向設定
+  printer_orientation : String
+  /// プリンターD2dBMP設定
+  printer_d2d_bmp : String
+} derive(Show, Eq)
+
+///|
 /// エンティティ種別
 pub enum Entity {
   Line(Line)
@@ -223,6 +259,10 @@ pub struct Document {
   embedded_images : Array[EmbeddedImage]
   /// 印刷設定
   print_settings : PrintSettings
+  /// 日光設定（寸法設定）
+  sunpou_settings : SunpouSettings
+  /// メタデータ設定（CDataMojiから抽出）
+  metadata_settings : MetadataSettings
 } derive(Show, Eq)
 
 ///|
@@ -257,6 +297,33 @@ pub fn LayerGroup::default() -> LayerGroup {
 }
 
 ///|
+/// MetadataSettingsのデフォルト値
+pub fn MetadataSettings::default() -> MetadataSettings {
+  {
+    printer_paper_size: "",
+    draw_bmp_touka: "",
+    view_direct2d: "",
+    printer_bmp_zentai: "",
+    printer_orientation: "",
+    printer_d2d_bmp: "",
+  }
+}
+
+///|
+/// SunpouSettingsのデフォルト値
+pub fn SunpouSettings::default() -> SunpouSettings {
+  {
+    sunpou1: 0,
+    sunpou2: 0,
+    sunpou3: 0,
+    sunpou4: 0,
+    sunpou5: 0,
+    dummy: 0,
+    max_line_width: 0,
+  }
+}
+
+///|
 /// Documentのデフォルト値
 pub fn Document::default() -> Document {
   // 16個のデフォルトレイヤグループを作成
@@ -279,6 +346,8 @@ pub fn Document::default() -> Document {
       scale: 1.0,
       rotation_setting: 0,
     },
+    sunpou_settings: SunpouSettings::default(),
+    metadata_settings: MetadataSettings::default(),
   }
 }
 
