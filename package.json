@@ -1,6 +1,6 @@
 {
   "name": "jww-parser",
-  "version": "2026.1.1",
+  "version": "2026.1.2",
   "description": "JWW file parser with JSON output powered by MoonBit",
   "author": "f12o",
   "license": "AGPL-3.0",
