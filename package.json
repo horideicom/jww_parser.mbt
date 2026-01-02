@@ -38,7 +38,9 @@
     "build:patch": "node scripts/patch-js.js",
     "build:bundle": "rolldown -c rolldown.config.mjs",
     "build:types": "mkdir -p dist && cp types/index.d.ts dist/index.d.ts && cp target/js/release/build/moonbit.d.ts dist/moonbit.d.ts",
-    "build": "pnpm run clean && pnpm run build:moon && pnpm run build:patch && pnpm run build:bundle && pnpm run build:types",
+    "build:docs": "node scripts/generate-api-docs.js",
+    "build": "pnpm run clean && pnpm run build:moon && pnpm run build:patch && pnpm run build:bundle && pnpm run build:types && pnpm run build:docs",
+    "docs": "node scripts/generate-api-docs.js",
     "prepublishOnly": "pnpm run build",
     "set-version": "node scripts/sync-version.js && git add package.json moon.mod.json examples/package.json",
     "release": "node scripts/release.js"
