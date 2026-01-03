@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 import { execSync } from 'child_process';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
 import readline from 'readline';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const rootDir = join(__dirname, '..');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -63,8 +69,8 @@ async function main() {
   console.log(`  1. Update package.json to ${newVersion}`);
   console.log(`  2. Sync moon.mod.json & examples/package.json`);
   console.log(`  3. Build (moon build → rolldown → types)`);
-  console.log(`  4. npm publish`);
-  console.log(`  5. Update examples/pnpm-lock.yaml`);
+  console.log(`  4. Update examples/pnpm-lock.yaml (using local tarball)`);
+  console.log(`  5. npm publish`);
   console.log(`  6. Git commit, tag, and push`);
   console.log(`  7. Create GitHub Release (optional)`);
   console.log('');
@@ -106,12 +112,50 @@ async function main() {
     }
     console.log('✓ Build outputs verified');
 
-    // 4. Git commit (version files)
+    // 4. Update examples/pnpm-lock.yaml using local tarball
+    console.log('\n━━━ Examples Lock Update Phase ━━━');
+
+    const tarballName = `jww-parser-${newVersion}.tgz`;
+    const tarballPath = join(rootDir, tarballName);
+    const examplesPackagePath = join(rootDir, 'examples', 'package.json');
+
+    // Clean up old tarball if exists
+    if (existsSync(tarballPath)) {
+      unlinkSync(tarballPath);
+    }
+
+    // Create tarball
+    if (!runCommand('pnpm pack', `Creating tarball: ${tarballName}`)) {
+      throw new Error('Failed to create tarball');
+    }
+
+    // Temporarily modify examples/package.json to use local tarball
+    const examplesPackageJson = JSON.parse(readFileSync(examplesPackagePath, 'utf8'));
+    const originalJwwParserVersion = examplesPackageJson.dependencies['jww-parser'];
+    examplesPackageJson.dependencies['jww-parser'] = `file:../${tarballName}`;
+    writeFileSync(examplesPackagePath, JSON.stringify(examplesPackageJson, null, 2) + '\n');
+    console.log(`  Temporarily set examples/package.json to use file:../${tarballName}`);
+
+    // Update lock file
+    if (!runCommand('pnpm install --filter examples', 'Updating examples/pnpm-lock.yaml')) {
+      throw new Error('Failed to update examples lock file');
+    }
+
+    // Restore examples/package.json to use registry version
+    examplesPackageJson.dependencies['jww-parser'] = `^${newVersion}`;
+    writeFileSync(examplesPackagePath, JSON.stringify(examplesPackageJson, null, 2) + '\n');
+    console.log(`  Restored examples/package.json to use jww-parser@^${newVersion}`);
+
+    // Clean up tarball
+    unlinkSync(tarballPath);
+    console.log(`  Cleaned up ${tarballName}`);
+
+    // 5. Git commit (version files + lock)
     console.log('\n━━━ Git Phase (Version Files) ━━━');
 
     if (!runCommand(
-      'git add package.json moon.mod.json examples/package.json',
-      'Staging version files'
+      'git add package.json moon.mod.json examples/package.json examples/pnpm-lock.yaml',
+      'Staging version files and lock file'
     )) {
       throw new Error('Failed to stage version files');
     }
@@ -140,33 +184,8 @@ async function main() {
       console.log(`⚠ Registry shows ${npmVersion}, expected ${newVersion} (may need time to propagate)`);
     }
 
-    // 6. Update examples/pnpm-lock.yaml
-    console.log('\n━━━ Examples Update Phase ━━━');
-
-    if (!runCommand('pnpm install --filter examples', 'Updating examples/pnpm-lock.yaml')) {
-      console.log('⚠ Failed to update examples lock file (continuing anyway)');
-    }
-
-    // 7. Git commit (lock file) + tag + push
+    // 6. Git tag + push
     console.log('\n━━━ Git Phase (Tag & Push) ━━━');
-
-    // Check if lock file changed
-    const lockChanged = runCommandSilent('git diff --name-only examples/pnpm-lock.yaml');
-    if (lockChanged) {
-      if (!runCommand(
-        'git add examples/pnpm-lock.yaml',
-        'Staging examples/pnpm-lock.yaml'
-      )) {
-        throw new Error('Failed to stage lock file');
-      }
-
-      if (!runCommand(
-        `git commit -m "chore(release): update examples lock file for ${newVersion}"`,
-        'Creating git commit for lock file'
-      )) {
-        throw new Error('Failed to create git commit for lock file');
-      }
-    }
 
     if (!runCommand(`git tag v${newVersion}`, `Creating git tag v${newVersion}`)) {
       throw new Error('Failed to create git tag');
