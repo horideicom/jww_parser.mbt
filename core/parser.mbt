@@ -405,11 +405,11 @@ fn parse_entity_with_pid_tracking(
     let name_bytes = reader.read_bytes(n=name_len)
 
     // バイト列をASCII文字列として解釈
-    let mut name_chars = ""
+    let name_chars_array = Array::new()
     for i in 0..<name_bytes.length() {
-      name_chars = name_chars + name_bytes[i].to_char().to_string()
+      name_chars_array.push(name_bytes[i].to_char())
     }
-    class_name = name_chars
+    class_name = String::from_array(name_chars_array)
 
     // PIDを登録
     let pid = updated_next_pid
@@ -776,11 +776,11 @@ fn parse_block_def_with_tracking(
     let name_bytes = reader.read_bytes(n=name_len)
 
     // バイト列をASCII文字列として解釈
-    let mut name_chars = ""
+    let name_chars_array = Array::new()
     for i in 0..<name_bytes.length() {
-      name_chars = name_chars + name_bytes[i].to_char().to_string()
+      name_chars_array.push(name_bytes[i].to_char())
     }
-    let class_name = name_chars
+    let class_name = String::from_array(name_chars_array)
 
     // PIDを登録
     let new_class_map = class_map
@@ -911,17 +911,17 @@ fn parse_image_from_bm_string(
 /// 文字列をカンマで分割する
 fn split_by_comma(path_and_params~ : String) -> Array[String] {
   let result = Array::new()
-  let mut current = ""
+  let mut current_array = Array::new()
   for c in path_and_params {
     if c == ',' {
-      result.push(current)
-      current = ""
+      result.push(String::from_array(current_array))
+      current_array = Array::new()
     } else {
-      current = current + c.to_string()
+      current_array.push(c)
     }
   }
-  if current != "" {
-    result.push(current)
+  if current_array.length() > 0 {
+    result.push(String::from_array(current_array))
   }
   result
 }
@@ -938,18 +938,18 @@ fn normalize_image_path(raw_path~ : String) -> String {
   }
   // アンダースコアをスラッシュに変換（JWW特有のパス変換）
   // 例: C_Users_... -> C:/Users/...
-  let mut normalized = ""
+  let normalized_array = Array::new()
   let mut prev_was_letter = false
   for c in chars {
     if c == '_' && prev_was_letter {
-      normalized = normalized + "/"
+      normalized_array.push('/')
       prev_was_letter = false
     } else {
-      normalized = normalized + c.to_string()
+      normalized_array.push(c)
       prev_was_letter = (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')
     }
   }
-  normalized
+  String::from_array(normalized_array)
 }
 
 ///|

@@ -6,6 +6,6 @@ pub fn parse(data~ : Bytes) -> @core.Document {
 
 ///|
 /// JWWドキュメントをJSON文字列に変換
-pub fn to_json_string(jww_doc~ : @core.Document) -> String {
-  "{\"version\":" + jww_doc.version.to_string() + "}"
+pub fn to_json_string(jww_doc : @core.Document) -> String {
+  @core.document_to_json(jww_doc)
 }

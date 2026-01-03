@@ -5,7 +5,7 @@ type StatusType = "info" | "success" | "error";
 
 // Get commit hash from env or use placeholder
 const BUILD_COMMIT = import.meta.env.VITE_COMMIT_HASH ?? "dev";
-const PACKAGE_VERSION = "2026.1.0";
+const PACKAGE_VERSION = "2026.1.3";
 
 const elements = {
   fileInput: document.getElementById("fileInput") as HTMLInputElement,

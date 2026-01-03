@@ -2,7 +2,7 @@
 /// JWWファイルをJSON文字列にパース
 pub fn jww_to_json(data : Bytes) -> String {
   let doc = @lib.parse(data~)
-  @lib.to_json_string(jww_doc=doc)
+  @lib.to_json_string(doc)
 }
 
 ///|
