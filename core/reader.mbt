@@ -39,6 +39,10 @@ pub fn Reader::remaining(self : Reader) -> Int {
 ///|
 /// 1バイト読み込んで位置を進める
 pub fn Reader::read_byte(self : Reader) -> Byte {
+  if self.pos >= self.data.length() {
+    self.pos = self.data.length()
+    return 0U.to_byte()
+  }
   let b = self.data[self.pos]
   self.pos = self.pos + 1
   b
@@ -100,11 +104,13 @@ pub fn Reader::skip(self : Reader, n~ : Int) -> Unit {
 /// nバイト読み込む
 /// データが不足している場合は空のBytesを返す
 pub fn Reader::read_bytes(self : Reader, n~ : Int) -> Bytes {
-  if self.remaining() < n {
+  let available = if n > self.remaining() { self.remaining() } else { n }
+  if available <= 0 {
+    self.pos = self.data.length()
     return Bytes::from_array([])
   }
   let start = self.pos
-  let end = self.pos + n
+  let end = self.pos + available
   self.pos = end
   Bytes::from_array(self.data[start:end])
 }
