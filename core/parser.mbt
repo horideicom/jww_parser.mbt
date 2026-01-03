@@ -326,14 +326,14 @@ fn find_entity_list_offset(data~ : Bytes, version~ : UInt) -> Int? {
 
 ///|
 /// エンティティリストパース結果
-priv struct EntityListResult {
+pub struct EntityListResult {
   entities : Array[Entity]
   bytes_consumed : Int
 }
 
 ///|
 /// エンティティリストをパースする
-fn parse_entity_list(
+pub fn parse_entity_list(
   data~ : Bytes,
   offset~ : Int,
   version~ : UInt,
@@ -457,7 +457,7 @@ fn parse_entity_with_pid_tracking(
 
   // クラス名に応じてエンティティをパース（0xFFFF以外の全ケース）
   let entity = parse_entity_by_class(class_name~, reader~, version~)
-  { entity, pid_to_class: updated_p2c, next_pid: updated_next_pid + 1 }
+  { entity, pid_to_class: updated_p2c, next_pid: updated_next_pid }
 }
 
 ///|
