@@ -87,7 +87,7 @@ pub fn Reader::read_uint64(self : Reader) -> UInt64 {
 /// IEEE 754 double (8バイト) を読み込む
 pub fn Reader::read_double(self : Reader) -> Double {
   let bits = self.read_uint64()
-  UInt64::to_double(bits)
+  bits.reinterpret_as_double()
 }
 
 ///|

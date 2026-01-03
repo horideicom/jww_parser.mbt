@@ -326,14 +326,14 @@ fn find_entity_list_offset(data~ : Bytes, version~ : UInt) -> Int? {
 
 ///|
 /// エンティティリストパース結果
-priv struct EntityListResult {
+pub struct EntityListResult {
   entities : Array[Entity]
   bytes_consumed : Int
 }
 
 ///|
 /// エンティティリストをパースする
-fn parse_entity_list(
+pub fn parse_entity_list(
   data~ : Bytes,
   offset~ : Int,
   version~ : UInt,

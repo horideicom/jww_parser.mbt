@@ -44,15 +44,17 @@ pub fn Writer::write_dword(self : Writer, d~ : UInt) -> Unit {
 ///|
 /// IEEE 754 double (8バイト) を書き込む
 pub fn Writer::write_double(self : Writer, d~ : Double) -> Unit {
-  let bits = Double::to_uint64(d)
-  self.buffer.push((bits & 0xFFUL).to_byte())
-  self.buffer.push(((bits >> 8) & 0xFFUL).to_byte())
-  self.buffer.push(((bits >> 16) & 0xFFUL).to_byte())
-  self.buffer.push(((bits >> 24) & 0xFFUL).to_byte())
-  self.buffer.push(((bits >> 32) & 0xFFUL).to_byte())
-  self.buffer.push(((bits >> 40) & 0xFFUL).to_byte())
-  self.buffer.push(((bits >> 48) & 0xFFUL).to_byte())
-  self.buffer.push(((bits >> 56) & 0xFFUL).to_byte())
+  let bits = d.reinterpret_as_uint64()
+  // UInt64 を各バイトに分解（リトルエンディアン）
+  // 各バイトをマスクしてから UInt -> Byte に変換
+  self.buffer.push(((bits >> 0) & 0xFFUL).to_uint().to_byte())
+  self.buffer.push(((bits >> 8) & 0xFFUL).to_uint().to_byte())
+  self.buffer.push(((bits >> 16) & 0xFFUL).to_uint().to_byte())
+  self.buffer.push(((bits >> 24) & 0xFFUL).to_uint().to_byte())
+  self.buffer.push(((bits >> 32) & 0xFFUL).to_uint().to_byte())
+  self.buffer.push(((bits >> 40) & 0xFFUL).to_uint().to_byte())
+  self.buffer.push(((bits >> 48) & 0xFFUL).to_uint().to_byte())
+  self.buffer.push(((bits >> 56) & 0xFFUL).to_uint().to_byte())
 }
 
 ///|

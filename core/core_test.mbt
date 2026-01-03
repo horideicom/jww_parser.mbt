@@ -18,6 +18,21 @@ test "writer dword roundtrip" {
 }
 
 ///|
+/// Writer の write_double テスト (2.5のIEEE 754表現確認)
+test "writer double 2.5" {
+  let writer = Writer::new()
+  writer.write_double(d=2.5)
+  let bytes = writer.to_bytes()
+  inspect(bytes.length(), content="8")
+  // 2.5のIEEE 754表現を確認
+  let bits = 2.5.reinterpret_as_uint64()
+  // 各バイト位置の値を確認
+  inspect(((bits >> 56) & 0xFFUL).to_uint(), content="64")  // 0x40
+  inspect(((bits >> 48) & 0xFFUL).to_uint(), content="4")   // 0x04
+  inspect(((bits >> 0) & 0xFFUL).to_uint(), content="0")    // 0x00
+}
+
+///|
 /// シリアライズされたデータが正しいシグネチャで始まる
 test "serialize signature" {
   let doc = Document::default()
@@ -90,7 +105,7 @@ test "entity pid tracking preserves sequential ids" {
   writer.write_dword(d=0U) // is_full_circle
 
   // 3件目: クラス参照 (PID = 2) を使用した CDataEnko
-  writer.write_word(w=((0x8000 | 2).to_uint()).to_uint16())
+  writer.write_word(w=((0x8000 | 2).reinterpret_as_uint()).to_uint16())
   writer.write_dword(d=0U)
   writer.write_byte(b=(0).to_byte())
   writer.write_word(w=(1).to_uint16())
