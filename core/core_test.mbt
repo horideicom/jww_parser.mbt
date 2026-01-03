@@ -174,12 +174,12 @@ test "default metadata settings" {
 ///|
 /// Reader が範囲外アクセスでパニックしないことを確認
 test "reader handles short data gracefully" {
-  let reader = Reader::new(data=Bytes::from_array([1.to_byte(), 2.to_byte()]))
+  let reader = Reader::new(data = Bytes::from_array([1U.to_byte(), 2U.to_byte()]))
 
   // 読み取り回数が残りより多くても例外にならない
   let _ = reader.read_dword()
   let trailing = reader.read_byte()
-  inspect(trailing, content="0")
+  inspect(trailing, content="b'\\x00'")
 
   // 不足分を読み込もうとしてもポインタが進むことを確認
   let bytes = reader.read_bytes(n=5)

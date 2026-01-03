@@ -41,7 +41,7 @@ pub fn Reader::remaining(self : Reader) -> Int {
 pub fn Reader::read_byte(self : Reader) -> Byte {
   if self.pos >= self.data.length() {
     self.pos = self.data.length()
-    return 0.to_byte()
+    return 0U.to_byte()
   }
   let b = self.data[self.pos]
   self.pos = self.pos + 1
