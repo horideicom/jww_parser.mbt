@@ -50,6 +50,11 @@ jobs:
 
       - name: Verify version match
         run: |
+          # Version format:
+          # - package.json: yyyy.MM.increment (e.g., 2026.1.5)
+          # - moon.mod.json: 0.yyyyMM.increment (e.g., 0.202601.5)
+          # The 0. prefix is required by mooncakes.io limitation
+
           RELEASE_VERSION="${{ github.event.release.tag_name }}"
           # Remove 'v' prefix if present
           VERSION="${RELEASE_VERSION#v}"
@@ -67,9 +72,14 @@ jobs:
             MISMATCH=true
           fi
 
-          if [ "$VERSION" != "$MOONBIT_VERSION" ]; then
-            echo "⚠️  Version mismatch between release tag and moon.mod.json"
-            echo "   (This is optional but recommended for consistency)"
+          # Convert npm version to mooncakes format for comparison
+          # e.g., 2026.1.5 → 0.202601.5
+          IFS='.' read -r YEAR MONTH INCREMENT <<< "$PACKAGE_VERSION"
+          EXPECTED_MOONBIT_VERSION="0.${YEAR}$(printf '%02d' "$MONTH").${INCREMENT}"
+
+          if [ "$MOONBIT_VERSION" != "$EXPECTED_MOONBIT_VERSION" ]; then
+            echo "❌ Version mismatch: moon.mod.json should be $EXPECTED_MOONBIT_VERSION"
+            MISMATCH=true
           fi
 
           if [ "$MISMATCH" = true ]; then

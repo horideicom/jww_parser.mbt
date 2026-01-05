@@ -8,7 +8,7 @@
  * @param {string} content - .mbti file content
  * @returns {object} Parsed API information
  */
-function parseMbti(content) {
+export function parseMbti(content) {
   var result = {
     package: '',
     imports: [],
@@ -412,7 +412,3 @@ function parseTraitMethods(methodsStr) {
 
   return methods;
 }
-
-module.exports = {
-  parseMbti: parseMbti
-};

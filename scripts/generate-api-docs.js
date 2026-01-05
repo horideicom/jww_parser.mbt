@@ -4,22 +4,24 @@
  * Generates AGENTS.md compatible API documentation from MoonBit source files
  */
 
-var fs = require('fs');
-var path = require('path');
-var parseMbti = require('./lib/mbti-parser').parseMbti;
-var extractDocstrings = require('./lib/mbt-docstring').extractDocstrings;
-var createDocstringMap = require('./lib/mbt-docstring').createDocstringMap;
-var generateApiMarkdown = require('./lib/markdown-gen').generateApiMarkdown;
-var generateUsageExample = require('./lib/markdown-gen').generateUsageExample;
-var appendToAgentsMd = require('./lib/markdown-gen').appendToAgentsMd;
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import { parseMbti } from './lib/mbti-parser.js';
+import { extractDocstrings, createDocstringMap } from './lib/mbt-docstring.js';
+import { generateApiMarkdown, generateUsageExample, appendToAgentsMd } from './lib/markdown-gen.js';
 
-var rootDir = path.resolve(__dirname, '..');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const rootDir = path.resolve(__dirname, '..');
 
 /**
  * Read a file synchronously
  */
 function readFile(filePath) {
-  return fs.readFileSync(filePath, 'utf-8');
+  return fs.readFileSync(filePath, 'utf8');
 }
 
 /**
@@ -281,10 +283,6 @@ function main() {
 }
 
 // Run if called directly
-if (require.main === module) {
-  main();
-}
+main();
 
-module.exports = {
-  generate: generate
-};
+export { generate };

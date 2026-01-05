@@ -8,7 +8,7 @@
  * @param {string} type - Type string
  * @returns {string} Formatted type
  */
-function formatType(type) {
+export function formatType(type) {
   if (!type) return 'Unit';
 
   // Clean up type notation
@@ -25,7 +25,7 @@ function formatType(type) {
  * @param {object} fn - Function object
  * @returns {string} Formatted signature
  */
-function formatFunctionSignature(fn) {
+export function formatFunctionSignature(fn) {
   const params = fn.params.map(function(p) {
     const formattedType = formatType(p.type);
     if (p.name) {
@@ -44,7 +44,7 @@ function formatFunctionSignature(fn) {
  * @param {string} docstring - Docstring content
  * @returns {string} Markdown
  */
-function generateFunctionDoc(fn, docstring) {
+export function generateFunctionDoc(fn, docstring) {
   var md = '#### `' + fn.name + formatFunctionSignature(fn) + '`\n\n';
 
   if (docstring) {
@@ -81,7 +81,7 @@ function generateFunctionDoc(fn, docstring) {
  * @param {object} docInfo - Docstring info
  * @returns {string} Markdown
  */
-function generateStructDoc(struct, docInfo) {
+export function generateStructDoc(struct, docInfo) {
   var md = '#### `' + struct.name + '`\n\n';
 
   if (docInfo && docInfo.docstring) {
@@ -132,7 +132,7 @@ function generateStructDoc(struct, docInfo) {
  * @param {object} docInfo - Docstring info
  * @returns {string} Markdown
  */
-function generateEnumDoc(enum_, docInfo) {
+export function generateEnumDoc(enum_, docInfo) {
   var md = '#### `' + enum_.name + '`\n\n';
 
   if (docInfo && docInfo.docstring) {
@@ -173,7 +173,7 @@ function generateEnumDoc(enum_, docInfo) {
  * @param {object} options - Generation options
  * @returns {string} Complete Markdown documentation
  */
-function generateApiMarkdown(apiInfo, docstrings, exports, options) {
+export function generateApiMarkdown(apiInfo, docstrings, exports, options) {
   options = options || {};
   var title = options.title !== undefined ? options.title : 'API Reference';
   var includeTypes = options.includeTypes !== undefined ? options.includeTypes : true;
@@ -268,7 +268,7 @@ function generateApiMarkdown(apiInfo, docstrings, exports, options) {
  * @param {string} newDocs - New API documentation
  * @returns {string} Combined content
  */
-function appendToAgentsMd(existingContent, newDocs) {
+export function appendToAgentsMd(existingContent, newDocs) {
   var marker = '## API Reference';
 
   // If API Reference section exists, replace it
@@ -286,7 +286,7 @@ function appendToAgentsMd(existingContent, newDocs) {
  * @param {Array} exports - Exported function names
  * @returns {string} Usage example
  */
-function generateUsageExample(exports) {
+export function generateUsageExample(exports) {
   var md = '## Usage Example\n\n';
   md += '```typescript\n';
   md += 'import { ' + exports.slice(0, 2).join(', ') + ' } from \'jww-parser\';\n\n';
@@ -299,14 +299,3 @@ function generateUsageExample(exports) {
 
   return md;
 }
-
-module.exports = {
-  generateApiMarkdown: generateApiMarkdown,
-  appendToAgentsMd: appendToAgentsMd,
-  generateUsageExample: generateUsageExample,
-  formatType: formatType,
-  formatFunctionSignature: formatFunctionSignature,
-  generateFunctionDoc: generateFunctionDoc,
-  generateStructDoc: generateStructDoc,
-  generateEnumDoc: generateEnumDoc
-};

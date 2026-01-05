@@ -8,7 +8,7 @@
  * @param {string} content - .mbt file content
  * @returns {Map} Map of docstrings keyed by name
  */
-function extractDocstrings(content) {
+export function extractDocstrings(content) {
   var result = {};
 
   // Split by block separator ///|
@@ -178,7 +178,7 @@ function extractVariantComments(lines, variantComments) {
  * @param {string} name - Name to look up
  * @returns {string|null} Docstring or null
  */
-function getDocstring(docstrings, name) {
+export function getDocstring(docstrings, name) {
   var info = docstrings[name];
   if (!info) {
     return null;
@@ -193,7 +193,7 @@ function getDocstring(docstrings, name) {
  * @param {string} fieldName - Field name
  * @returns {string|null} Field comment or null
  */
-function getFieldComment(docstrings, structName, fieldName) {
+export function getFieldComment(docstrings, structName, fieldName) {
   var info = docstrings[structName];
   if (!info || !info.fields) {
     return null;
@@ -211,7 +211,7 @@ function getFieldComment(docstrings, structName, fieldName) {
  * @param {object} docstrings - Docstrings object
  * @returns {object} Map-like object with get method
  */
-function createDocstringMap(docstrings) {
+export function createDocstringMap(docstrings) {
   return {
     _data: docstrings,
     get: function(key) {
@@ -222,10 +222,3 @@ function createDocstringMap(docstrings) {
     }
   };
 }
-
-module.exports = {
-  extractDocstrings: extractDocstrings,
-  getDocstring: getDocstring,
-  getFieldComment: getFieldComment,
-  createDocstringMap: createDocstringMap
-};
