@@ -44,7 +44,7 @@ pub fn Writer::write_dword(self : Writer, d~ : UInt) -> Unit {
 ///|
 /// IEEE 754 double (8バイト) を書き込む
 pub fn Writer::write_double(self : Writer, d~ : Double) -> Unit {
-  let bits = Double::to_uint64(d)
+  let bits = Double::reinterpret_as_uint64(d)
   self.buffer.push((bits & 0xFFUL).to_byte())
   self.buffer.push(((bits >> 8) & 0xFFUL).to_byte())
   self.buffer.push(((bits >> 16) & 0xFFUL).to_byte())

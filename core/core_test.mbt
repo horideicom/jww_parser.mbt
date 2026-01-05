@@ -18,6 +18,25 @@ test "writer dword roundtrip" {
 }
 
 ///|
+/// Reader の read_double テスト
+test "reader double roundtrip" {
+  let writer = Writer::new()
+  let value : Double = 123.456
+  writer.write_double(d=value)
+  let bytes = writer.to_bytes()
+  let reader = Reader::new(data=bytes)
+  let read = reader.read_double()
+  inspect(
+    value.is_close(
+      read,
+      relative_tolerance=0.000000000001,
+      absolute_tolerance=0.000000000001,
+    ),
+    content="true",
+  )
+}
+
+///|
 /// シリアライズされたデータが正しいシグネチャで始まる
 test "serialize signature" {
   let doc = Document::default()
