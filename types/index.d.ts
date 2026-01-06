@@ -105,6 +105,31 @@ export interface Solid {
 }
 
 /**
+ * Arc/Circle solid entity (CDataSolid with pen_style >= 101)
+ */
+export interface ArcSolid {
+  base: EntityBase;
+  /** Center X */
+  center_x: number;
+  /** Center Y */
+  center_y: number;
+  /** Outer radius */
+  radius: number;
+  /** 1.0 is a true circle, otherwise an ellipse */
+  flatness: number;
+  /** Tilt angle in radians */
+  tilt_angle: number;
+  /** Start angle in radians */
+  start_angle: number;
+  /** Arc angle in radians */
+  arc_angle: number;
+  /** Meaning depends on pen_style (type flag or inner radius) */
+  solid_param: number;
+  /** Used when pen_color == 10 */
+  color: number;
+}
+
+/**
  * Block insertion entity (JWW class: CDataBlock)
  */
 export interface Block {
@@ -145,6 +170,7 @@ export type Entity =
   | { type: "Point"; value: Point }
   | { type: "Text"; value: Text }
   | { type: "Solid"; value: Solid }
+  | { type: "ArcSolid"; value: ArcSolid }
   | { type: "Block"; value: Block }
   | { type: "Image"; value: Image };
 

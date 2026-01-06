@@ -89,6 +89,30 @@ pub struct Solid {
 } derive(Show, Eq)
 
 ///|
+/// 円弧/円ソリッドエンティティ (CDataSolid, pen_style >= 101)
+pub struct ArcSolid {
+  base : EntityBase
+  /// 中心点X座標
+  center_x : Double
+  /// 中心点Y座標
+  center_y : Double
+  /// 外側半径
+  radius : Double
+  /// 扁平率 (1.0は真円)
+  flatness : Double
+  /// 傾き角 (ラジアン)
+  tilt_angle : Double
+  /// 開始角 (ラジアン)
+  start_angle : Double
+  /// 円弧角 (ラジアン)
+  arc_angle : Double
+  /// ソリッド種別/内側半径など (pen_styleにより解釈が変わる)
+  solid_param : Double
+  /// 塗りつぶし色 (pen_color == 10の時使用)
+  color : UInt
+} derive(Show, Eq)
+
+///|
 /// ブロック挿入エンティティ (JWWクラス: CDataBlock)
 pub struct Block {
   base : EntityBase
@@ -198,6 +222,7 @@ pub enum Entity {
   Point(Point)
   Text(Text)
   Solid(Solid)
+  ArcSolid(ArcSolid)
   Block(Block)
   Image(Image)
 } derive(Show, Eq)
@@ -360,6 +385,7 @@ pub fn Entity::base(self : Entity) -> EntityBase {
     Point(p) => p.base
     Text(t) => t.base
     Solid(s) => s.base
+    ArcSolid(s) => s.base
     Block(b) => b.base
     Image(i) => i.base
   }
@@ -374,6 +400,7 @@ pub fn Entity::type_name(self : Entity) -> String {
     Point(_) => "POINT"
     Text(_) => "TEXT"
     Solid(_) => "SOLID"
+    ArcSolid(_) => "SOLID_ARC"
     Block(_) => "BLOCK"
     Image(_) => "IMAGE"
   }

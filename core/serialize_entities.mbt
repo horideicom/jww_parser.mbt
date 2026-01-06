@@ -7,6 +7,7 @@ fn entity_class_name(entity~ : Entity) -> String {
     Point(_) => "CDataTen"
     Text(_) => "CDataMoji"
     Solid(_) => "CDataSolid"
+    ArcSolid(_) => "CDataSolid"
     Block(_) => "CDataBlock"
     Image(_) => "CDataMoji" // 画像はCDataMoji形式で書き込む
   }
@@ -36,6 +37,7 @@ fn write_entity(
     Point(point) => write_point(writer~, point~, version~)
     Text(text) => write_text(writer~, text~, version~)
     Solid(solid) => write_solid(writer~, solid~, version~)
+    ArcSolid(arc_solid) => write_arc_solid(writer~, arc_solid~, version~)
     Block(block) => write_block(writer~, block~, version~)
     Image(image) => write_image(writer~, image~, version~)
   }
@@ -110,6 +112,27 @@ fn write_solid(writer~ : Writer, solid~ : Solid, version~ : UInt) -> Unit {
   writer.write_double(d=solid.point3_y)
   if solid.base.pen_color == 10 {
     writer.write_dword(d=solid.color)
+  }
+}
+
+///|
+/// 円弧/円ソリッドを書き込む
+fn write_arc_solid(
+  writer~ : Writer,
+  arc_solid~ : ArcSolid,
+  version~ : UInt,
+) -> Unit {
+  write_entity_base(writer~, base=arc_solid.base, version~)
+  writer.write_double(d=arc_solid.center_x)
+  writer.write_double(d=arc_solid.center_y)
+  writer.write_double(d=arc_solid.radius)
+  writer.write_double(d=arc_solid.flatness)
+  writer.write_double(d=arc_solid.tilt_angle)
+  writer.write_double(d=arc_solid.start_angle)
+  writer.write_double(d=arc_solid.arc_angle)
+  writer.write_double(d=arc_solid.solid_param)
+  if arc_solid.base.pen_color == 10 {
+    writer.write_dword(d=arc_solid.color)
   }
 }
 

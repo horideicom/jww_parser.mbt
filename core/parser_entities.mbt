@@ -304,20 +304,37 @@ fn parse_entity_by_class(
     if base.pen_color == 10 {
       color = reader.read_dword()
     }
-    Some(
-      Entity::Solid({
-        base,
-        point1_x,
-        point1_y,
-        point2_x,
-        point2_y,
-        point3_x,
-        point3_y,
-        point4_x,
-        point4_y,
-        color,
-      }),
-    )
+    if base.pen_style.to_int() >= 101 {
+      Some(
+        Entity::ArcSolid({
+          base,
+          center_x: point1_x,
+          center_y: point1_y,
+          radius: point4_x,
+          flatness: point4_y,
+          tilt_angle: point2_x,
+          start_angle: point2_y,
+          arc_angle: point3_x,
+          solid_param: point3_y,
+          color,
+        }),
+      )
+    } else {
+      Some(
+        Entity::Solid({
+          base,
+          point1_x,
+          point1_y,
+          point2_x,
+          point2_y,
+          point3_x,
+          point3_y,
+          point4_x,
+          point4_y,
+          color,
+        }),
+      )
+    }
   } else if class_name == "CDataBlock" {
     let base = parse_entity_base(reader~, version~)
     let ref_x = reader.read_double()
