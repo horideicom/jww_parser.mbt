@@ -5,6 +5,7 @@
     "moonbitlang/quickcheck": "0.9.8",
     "f4ah6o/encoding_sjis": "*"
   },
+  "preferred-target": "js",
   "readme": "README.mbt.md",
   "repository": "https://github.com/f4ah6o/jww_parser.mbt.git",
   "license": "AGPL-3.0",
