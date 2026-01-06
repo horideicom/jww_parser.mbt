@@ -55,6 +55,23 @@ JWWドキュメントをJSON文字列に変換
 | `flatness` | `Double` | 1.0は真円、それ以外は楕円 |
 | `is_full_circle` | `Bool` |  |
 
+#### `ArcSolid`
+
+円弧/円ソリッドエンティティ (CDataSolid, pen_style >= 101)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `base` | `EntityBase` |  |
+| `center_x` | `Double` |  |
+| `center_y` | `Double` |  |
+| `radius` | `Double` |  |
+| `flatness` | `Double` |  |
+| `tilt_angle` | `Double` |  |
+| `start_angle` | `Double` |  |
+| `arc_angle` | `Double` |  |
+| `solid_param` | `Double` |  |
+| `color` | `UInt` |  |
+
 #### `Block`
 
 ブロック挿入エンティティ (JWWクラス: CDataBlock)
@@ -342,6 +359,7 @@ SunpouSettingsのデフォルト値
 | `Point` | `Point` |  |
 | `Text` | `Text` |  |
 | `Solid` | `Solid` |  |
+| `ArcSolid` | `ArcSolid` |  |
 | `Block` | `Block` |  |
 | `Image` | `Image` |  |
 
