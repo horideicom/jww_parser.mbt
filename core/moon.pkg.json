@@ -1,7 +1,0 @@
-{
-  "import": [
-    { "path": "horideicom/encoding_sjis", "alias": "encoding_sjis" },
-    { "path": "moonbitlang/core/strconv", "alias": "strconv" }
-  ],
-  "warn-list": "-6"
-}

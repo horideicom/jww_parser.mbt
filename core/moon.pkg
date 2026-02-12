@@ -1,0 +1,6 @@
+import {
+  "horideicom/encoding_sjis" @encoding_sjis,
+  "moonbitlang/core/strconv" @strconv,
+}
+
+warnings = "-6"

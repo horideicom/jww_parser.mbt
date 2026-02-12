@@ -386,14 +386,12 @@ fn parse_entity_by_class(
         let _ = reader.read_double()
         let _ = reader.read_double()
         let _ = reader.read_double()
-
       }
       for _ in 0..<4 {
         let _ = parse_entity_base(reader~, version~)
         let _ = reader.read_double()
         let _ = reader.read_double()
         let _ = reader.read_dword()
-
       }
     }
     // 寸法エンティティは線として返す（Go版の実装に倣う）

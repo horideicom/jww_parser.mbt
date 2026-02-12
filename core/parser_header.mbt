@@ -19,7 +19,6 @@ fn parse_sunpou_settings(reader~ : Reader) -> SunpouSettings {
   // 14個のDWORDをスキップ（予備）
   for _ in 0..<14 {
     let _ = reader.read_dword()
-
   }
 
   // 日光設定 (m_lnSunpou1〜5)

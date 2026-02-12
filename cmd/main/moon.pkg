@@ -1,0 +1,7 @@
+import {
+  "horideicom/jww_parser" @lib,
+}
+
+options(
+  "is-main": true,
+)

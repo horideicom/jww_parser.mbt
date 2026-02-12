@@ -1,0 +1,13 @@
+import {
+  "horideicom/jww_parser/core" @core,
+}
+
+options(
+  link: {
+    "js": {
+      "exports": [ "parse", "to_json_string" ],
+      "format": "esm",
+      "use-js-builtin-string": true,
+    },
+  },
+)

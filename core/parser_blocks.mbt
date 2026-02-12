@@ -53,7 +53,6 @@ fn parse_block_def_list(
       Some(bd) => block_defs.push(bd)
       None => {
         let _ = class_map
-
       }
     }
     class_map = result.class_map
