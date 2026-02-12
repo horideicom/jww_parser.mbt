@@ -3,12 +3,12 @@
   "version": "0.202602.0",
   "deps": {
     "moonbitlang/quickcheck": "0.9.10",
-    "horideicom/encoding_sjis": "*"
+    "horideicom/encoding_sjis": "0.1.1"
   },
-  "preferred-target": "js",
   "readme": "README.mbt.md",
   "repository": "https://github.com/horideicom/jww_parser.mbt.git",
   "license": "AGPL-3.0",
   "keywords": [],
-  "description": ""
+  "description": "",
+  "preferred-target": "js"
 }
